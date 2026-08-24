@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  apps/web:
     dependencies:
       '@supabase/ssr':
         specifier: ^0.12.4

@@ -1,1 +1,14 @@
-{"name":"caterwise","private":true,"scripts":{"dev":"pnpm --filter web dev","build":"pnpm --filter web build","start":"pnpm --filter web start"}}
+{
+  "name": "caterwise",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "unrs-resolver"
+    ]
+  }
+}
