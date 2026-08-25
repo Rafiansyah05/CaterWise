@@ -56,6 +56,13 @@ Proses pengembangan CaterWise dilakukan dengan metodologi Agile untuk memastikan
 - ✅ **Validasi Kelayakan Konsumsi:** Alur kerja mengharuskan pengguna memvalidasi *disclaimer* kelayakan dan keamanan pangan mandiri sebelum bisa melakukan donasi.
 - ✅ **Food Rescue Workflow:** Sistem distribusi (*redistribution workflow*) untuk sisa makanan beroperasi melalui pembuatan templat *pre-filled* WhatsApp langsung ke mitra (Garda Pangan). Hal ini menciptakan proses pengajuan jemput yang cepat tanpa *overhead* operasional di tahap MVP.
 
+### Sprint 5: Risk Simulation & Profitability Engine
+**Fokus:** Uji skenario/rencana produksi harian untuk mengkalkulasi profitabilitas, potensi risiko, dan sisa makanan yang terbuang.
+- ✅ **Skenario Input:** *Simulation input* tersedia. Pengguna dapat menentukan target tanggal simulasi serta jumlah rencana porsi yang akan dimasak (stok) untuk setiap menu aktif.
+- ✅ **Simulation Engine (ML):** *Simulation engine* berjalan sukses di *backend*. Otomatis mengekstraksi *demand forecast* (mempertimbangkan cuaca & kalender) lalu menyandingkannya dengan rencana stok untuk mendapatkan prediksi jumlah terjual (*Simulated Sold*) dan jumlah sisa porsi (*Simulated Surplus*).
+- ✅ **Financial Calculation:** *Revenue/cost/profit calculation* berjalan. Berdasarkan data HPP (Biaya Produksi) dan Harga Jual, sistem menampilkan angka Proyeksi Pendapatan, Biaya, dan Untung-Rugi secara *real-time*.
+- ✅ **Generative AI Analysis:** Gemini dapat menjelaskan hasil simulasi. Terintegrasi dengan hitungan metrik finansial dan data cuaca, Gemini memberikan *Executive Summary* untuk menasihati pemilik restoran mengenai efisiensi rencana produksi tersebut (sudah optimal atau berisiko kerugian).
+
 ## Cara Menjalankan Project
 
 Aplikasi ini berjalan dengan dua *service* terpisah (Frontend Next.js dan Backend Python) serta menggunakan database lokal Supabase.

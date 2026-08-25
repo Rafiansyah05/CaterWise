@@ -22,3 +22,34 @@ class ForecastResponse(BaseModel):
     forecasts: List[ForecastItem]
     ai_insight: Optional[str] = None
     weather_info: Optional[str] = None
+class SimulationInputItem(BaseModel):
+    menu_id: str
+    menu_name: str
+    stock: int
+    price: float
+    hpp: float
+
+class SimulationRequest(BaseModel):
+    restaurant_id: str
+    target_date: str
+    weather_info: Optional[str] = None
+    inputs: List[SimulationInputItem]
+
+class SimulationResultItem(BaseModel):
+    menu_id: str
+    menu_name: str
+    stock: int
+    estimated_demand: int
+    simulated_sold: int
+    simulated_surplus: int
+    revenue: float
+    cost: float
+    profit: float
+
+class SimulationResponse(BaseModel):
+    target_date: str
+    results: List[SimulationResultItem]
+    total_revenue: float
+    total_cost: float
+    total_profit: float
+    ai_summary: str

@@ -148,6 +148,47 @@ export default function PrediksiPage() {
     }
   };
 
+  const Loading3D = () => (
+    <div className="flex flex-col items-center justify-center py-24 space-y-12 min-h-[60vh]">
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes float3d {
+          0%, 100% { transform: translateY(0) rotateX(10deg) rotateY(0deg); }
+          50% { transform: translateY(-20px) rotateX(15deg) rotateY(180deg); }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-15px) scale(1.1); }
+        }
+        @keyframes pulse-glass {
+          0%, 100% { transform: scale(1) rotate(-10deg); }
+          50% { transform: scale(1.2) rotate(10deg); }
+        }
+      `}} />
+      <div className="relative w-40 h-40 [perspective:1000px]">
+        <div className="w-full h-full relative [transform-style:preserve-3d]" style={{ animation: 'float3d 4s ease-in-out infinite' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center border-4 border-white/20">
+            <span className="text-6xl drop-shadow-md">🏪</span>
+          </div>
+          <div className="absolute -top-8 -left-8 bg-green-100 p-3 rounded-full shadow-lg border border-green-300" style={{ animation: 'bounce-slow 3s ease-in-out infinite' }}>
+            <span className="text-3xl">💵</span>
+          </div>
+          <div className="absolute -bottom-6 -right-6 bg-yellow-100 p-3 rounded-full shadow-lg border border-yellow-300" style={{ animation: 'bounce-slow 3s ease-in-out infinite 1.5s' }}>
+            <span className="text-3xl">🪙</span>
+          </div>
+          <div className="absolute top-1/2 -right-12 bg-white/90 backdrop-blur p-4 rounded-full shadow-xl border border-gray-100 z-10" style={{ animation: 'pulse-glass 2s ease-in-out infinite' }}>
+            <span className="text-4xl">🔍</span>
+          </div>
+        </div>
+      </div>
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+          AI & Algoritma Sedang Bekerja
+        </h3>
+        <p className="text-gray-500 font-medium">Menganalisis pola historis, cuaca, dan menghitung prediksi untuk Anda...</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
       {/* Breadcrumb & Header */}
@@ -212,45 +253,7 @@ export default function PrediksiPage() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-          
-          {/* Restored big spinner */}
-          <div className="relative mb-2">
-            <div className="w-20 h-20 rounded-full border-4 border-blue-100"></div>
-            <div className="w-20 h-20 rounded-full border-4 border-blue-600 border-t-transparent animate-spin absolute top-0 left-0"></div>
-            <div className="absolute inset-0 flex items-center justify-center text-blue-600">
-              <svg className="w-8 h-8 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
-            </div>
-          </div>
-          
-          <div className="w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-gray-900 text-center mb-4">Memproses Prediksi</h3>
-            <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 space-y-4">
-              {[
-                "Memuat profil & data historis...",
-                "Mengambil prakiraan cuaca Surabaya...",
-                "Menganalisis & menyusun hasil akhir..."
-              ].map((text, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  {loadingStep > i ? (
-                    <div className="flex-shrink-0 w-6 h-6 bg-green-50 text-green-600 rounded-full flex items-center justify-center border border-green-200">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-                    </div>
-                  ) : loadingStep === i ? (
-                    <div className="flex-shrink-0 w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <div className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
-                      <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
-                    </div>
-                  )}
-                  <p className={`text-sm font-medium transition-colors duration-200 ${loadingStep > i ? 'text-gray-900' : loadingStep === i ? 'text-blue-700' : 'text-gray-400'}`}>
-                    {text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <Loading3D />
       ) : error ? (
         <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-2xl flex flex-col items-center justify-center min-h-[40vh] text-center gap-4">
           <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
