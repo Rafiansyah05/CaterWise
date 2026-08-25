@@ -74,20 +74,37 @@ Aplikasi ini berjalan dengan dua *service* terpisah (Frontend Next.js dan Backen
 - **Docker Desktop** (wajib berjalan jika menggunakan Supabase lokal)
 - **Supabase CLI**
 
-### 2. Install Dependensi Node (Frontend)
+### 2. Konfigurasi Environment Variables (.env)
+Karena arsitektur *monorepo*, file `.env` dipecah sesuai batasan sistem operasi kerjanya:
+- **`apps/web/.env`**: Wajib ada karena aturan mutlak dari **Next.js**. Framework ini mengharuskan file env berada di root foldernya (`apps/web`) agar variabel `NEXT_PUBLIC_*` dapat disuntikkan saat *build/run* ke sisi *client-side*.
+- **`/.env` (Root)**: Digunakan oleh **Backend Python**. Kami mengaturnya agar Python menarik data dari root monorepo.
+*(Isi kedua file tersebut harus sama persis).*
+
+**Contoh Format `.env`**:
+```env
+# Supabase Local Settings
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbG...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbG...
+
+# Gemini API Key (Dari Google AI Studio)
+GEMINI_API_KEY=AIzaSy...
+```
+
+### 3. Install Dependensi Node (Frontend)
 Jalankan perintah ini di root *folder* proyek:
 ```bash
 pnpm install
 ```
 
-### 3. Install Dependensi Python (Backend)
+### 4. Install Dependensi Python (Backend)
 Buka terminal baru, masuk ke folder `apps/api/` dan buat *virtual environment*:
 ```bash
 cd apps/api
 python -m venv .venv
 
 # Aktivasi venv (Windows):
-.venv\Scripts\activate
+source .venv/Scripts/activate
 # Aktivasi venv (Mac/Linux):
 source .venv/bin/activate
 
@@ -95,26 +112,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Menjalankan Database Lokal (Supabase)
+### 5. Menjalankan Database Lokal (Supabase)
 Pastikan aplikasi Docker sudah berjalan, kemudian eksekusi di root proyek:
 ```bash
 npx supabase start
 ```
-*Perintah ini akan mendownload *image* Supabase, menjalankannya, dan secara otomatis mengeksekusi skema database yang ada di `supabase/migrations/`.*
-Setelah selesai, terminal akan menampilkan **API URL** dan **anon key**.
-
-### 5. Konfigurasi Environment Variables
-Buat sebuah file bernama `.env` di root proyek (atau di dalam `apps/web/.env.local`) yang berisi:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_api_url_disini
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_disini
-GEMINI_API_KEY=your_gemini_api_key_disini
-```
-*(Backend Python akan secara otomatis membaca variabel-variabel di atas).*
+*Perintah ini akan mendownload image Supabase, menjalankannya, dan secara otomatis mengeksekusi skema database.*
+Setelah selesai, terminal akan menampilkan **API URL** dan **anon key** untuk disalin ke file `.env`.
 
 ### 6. Menjalankan Aplikasi Web & AI (2 Terminal)
 
-Untuk menjalankan CaterWise secara penuh, Anda membutuhkan 2 terminal yang berjalan bersamaan:
+Aplikasi membutuhkan dua terminal agar *frontend* dan *backend* saling berkomunikasi.
 
 **Terminal 1 (Frontend Next.js):**
 Pastikan berada di root direktori, lalu jalankan:

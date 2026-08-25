@@ -68,7 +68,10 @@ export default function PrediksiPage() {
 
         let wName = 'Cerah';
         try {
-          const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=-7.2504&longitude=112.7688&daily=weathercode&timezone=Asia%2FJakarta&start_date=${dateStr}&end_date=${dateStr}`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=-7.2504&longitude=112.7688&daily=weathercode&timezone=Asia%2FJakarta&start_date=${dateStr}&end_date=${dateStr}`, { signal: controller.signal });
+          clearTimeout(timeoutId);
           const wData = await wRes.json();
           const code = wData?.daily?.weathercode?.[0];
           if (code !== undefined) {

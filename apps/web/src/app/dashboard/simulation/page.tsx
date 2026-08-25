@@ -129,17 +129,20 @@ export default function SimulationPage() {
     setIsSimulating(true);
 
     try {
-      let wName = 'Cerah';
-      try {
-        const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=-7.2504&longitude=112.7688&daily=weathercode&timezone=Asia%2FJakarta&start_date=${targetDate}&end_date=${targetDate}`);
-        const wData = await wRes.json();
-        const code = wData?.daily?.weathercode?.[0];
-        if (code !== undefined) {
-          if (code >= 50 && code <= 69) wName = 'Gerimis / Hujan Ringan';
-          else if (code >= 70 && code <= 99) wName = 'Hujan Lebat / Badai';
-          else if (code >= 1 && code <= 3) wName = 'Berawan';
-        }
-      } catch (e) { /* fallback default cerah */ }
+        let wName = 'Cerah';
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=-7.2504&longitude=112.7688&daily=weathercode&timezone=Asia%2FJakarta&start_date=${targetDate}&end_date=${targetDate}`, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          const wData = await wRes.json();
+          const code = wData?.daily?.weathercode?.[0];
+          if (code !== undefined) {
+            if (code >= 50 && code <= 69) wName = 'Gerimis / Hujan Ringan';
+            else if (code >= 70 && code <= 99) wName = 'Hujan Lebat / Badai';
+            else if (code >= 1 && code <= 3) wName = 'Berawan';
+          }
+        } catch (e) { /* fallback default cerah */ }
 
       const res = await fetch('http://localhost:8000/simulate', {
         method: 'POST',
