@@ -15,12 +15,36 @@ Project ini menggunakan arsitektur monorepo dengan **pnpm workspaces**:
 - **Styling**: Tailwind CSS
 - **Database & Auth**: Supabase (PostgreSQL)
 
-## Sprint 1 Achievements
-✅ **Project dapat dijalankan**: Struktur Monorepo Next.js sudah siap.
-✅ **Database tersedia**: Integrasi Supabase siap digunakan.
-✅ **Schema utama dibuat**: Tersedia di `supabase/migrations/20260823000000_initial_schema.sql`.
-✅ **RLS aktif**: Supabase Row-Level Security diaktifkan pada semua tabel.
-✅ **Data antar restoran terisolasi**: Setiap query secara otomatis divalidasi dengan otentikasi user dan ID restoran.
+## Project Progress (Agile Sprints)
+
+Proses pengembangan CaterWise dilakukan dengan metodologi Agile untuk memastikan setiap iterasi berfokus pada nilai guna aplikasi. Berikut adalah *milestones* dan status eksekusi dari masing-masing Sprint:
+
+### Sprint 1: Foundation & Database Architecture
+**Fokus:** Penyiapan infrastruktur dasar, konfigurasi basis data, dan keamanan akses (Multi-tenancy).
+- ✅ **Project Setup:** Struktur Monorepo (Next.js frontend & Python FastAPI backend) berhasil dikonfigurasi dan dapat dijalankan.
+- ✅ **Database & Schema:** Supabase PostgreSQL terintegrasi penuh. Skema utama untuk entitas restoran, menu, produksi, dan penjualan harian telah dibuat.
+- ✅ **Keamanan Data (RLS):** *Row-Level Security* aktif pada seluruh tabel. Isolasi data antar restoran terjamin (setiap kueri otomatis tervalidasi secara aman berdasarkan ID otentikasi *owner*).
+
+### Sprint 2: Authentication, Core UI, & Data Entry
+**Fokus:** Pengalaman pengguna (UX), autentikasi aman, tata letak antarmuka, dan manajemen operasional dasar.
+- ✅ **Autentikasi & Onboarding:** *Sign Up*, *Sign In*, dan verifikasi OTP (*One-Time Password*) menggunakan Supabase Auth berjalan mulus. Pengguna baru dapat melakukan *Restaurant setup* dan *Menu setup* dengan lancar.
+- ✅ **UI/UX & Routing:** *Main layout*, *responsive layout*, dan *protected routes* selesai dibangun. Pengguna diarahkan secara aman sesuai status sesi login mereka.
+- ✅ **Manajemen Operasional:** Pengguna dapat dengan mudah menambah, mengubah, dan menonaktifkan (*deactivate*) menu tanpa menghapus data historis.
+- ✅ **Data Pencatatan (Recording):** Fitur pengisian rekap penjualan harian (*Daily Sales*) berjalan dan tervalidasi. Sistem mampu menghitung nilai surplus secara mandiri berdasarkan angka produksi dan penjualan.
+
+### Sprint 3: Forecasting Engine & AI Insights
+**Fokus:** Algoritma prediksi permintaan pasar (*demand forecasting*) dan kecerdasan buatan (*Generative AI*).
+- ✅ **Dashboard Analytics:** Dasbor utama berhasil menampilkan *overview* data aktual dan *timeline* riwayat prediksi kecerdasan buatan.
+- ✅ **Forecasting Terukur (ML):** Integrasi *backend* Python berhasil memproduksi model *Weighted Moving Average* (WMA) dan *XGBoost*. *XGBoost* secara dinamis dilatih untuk prediksi tingkat lanjut jika *historical data* mencukupi.
+- ✅ **Walk-Forward Validation:** Evaluasi model dilakukan dengan *time-series walk-forward validation* 5 hari untuk menghasilkan akurasi yang representatif, bukan sekadar estimasi acak.
+- ✅ **Model Selection & Rekomendasi:** Kesalahan metrik mutlak (*MAE* dan *MAPE*) dihitung per menu. Sistem otomatis memilih algoritma dengan galat terkecil untuk mencetak *Production Recommendation* esok hari.
+- ✅ **Gemini AI Integration:** Google Gemini 2.0 Flash terintegrasi secara asinkron (*parallel processing*) untuk menerjemahkan data mentah (prediksi, histori cuaca Open-Meteo, & libur) menjadi *AI Insight* / alasan per menu yang mudah dipahami pemilik restoran.
+
+### Sprint 4: Surplus Redistribution Workflow
+**Fokus:** Penanganan *food waste* / surplus makanan dan integrasi penyaluran donasi.
+- ✅ **Actual Surplus Detection:** Halaman "Distribusi Surplus" mampu membedakan antara *Estimated Surplus* (dari sistem) dengan *Actual Surplus* (dari kondisi fisik yang dihitung pegawai).
+- ✅ **Validasi Kelayakan Konsumsi:** Alur kerja mengharuskan pengguna memvalidasi *disclaimer* kelayakan dan keamanan pangan mandiri sebelum bisa melakukan donasi.
+- ✅ **Food Rescue Workflow:** Sistem distribusi (*redistribution workflow*) untuk sisa makanan beroperasi melalui pembuatan templat *pre-filled* WhatsApp langsung ke mitra (Garda Pangan). Hal ini menciptakan proses pengajuan jemput yang cepat tanpa *overhead* operasional di tahap MVP.
 
 ## Cara Menjalankan Project
 
