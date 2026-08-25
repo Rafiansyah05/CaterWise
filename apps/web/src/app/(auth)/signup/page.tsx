@@ -86,12 +86,13 @@ export default function SignUpPage() {
 
   return (
     <>
-      <div className="text-center">
+      <div className="text-center flex flex-col items-center">
+        <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-10 mb-6 object-contain" />
         <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
           Buat Akun CaterWise
         </h2>
         <p className="mt-2 text-sm text-gray-500">
-          Kelola produksi prasmanan dengan lebih terukur.
+          Mulai optimasi produksi rumah makan Anda hari ini.
         </p>
       </div>
 

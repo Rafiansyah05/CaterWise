@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -23,202 +22,264 @@ export default function SalesPage() {
 
   const [menus, setMenus] = useState<Menu[]>([]);
   const [salesData, setSalesData] = useState<Record<string, string>>({});
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toLocaleDateString('en-CA') // YYYY-MM-DD format
-  );
+  const [productionData, setProductionData] = useState<Record<string, string>>({});
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toLocaleDateString('en-CA'));
 
   const [history, setHistory] = useState<HistorySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [hasTomorrowStock, setHasTomorrowStock] = useState(false);
   const [success, setSuccess] = useState('');
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   useEffect(() => {
     async function initData() {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
 
-      if (!session) {
-        router.push('/login');
-        return;
-      }
-
-      const { data: restaurant } = await supabase
-        .from('restaurants')
-        .select('id')
-        .eq('owner_id', session.user.id)
-        .single();
-
-      if (restaurant) {
-        setRestaurantId(restaurant.id);
-
-        // Fetch active menus
-        const { data: activeMenus } = await supabase
-          .from('menus')
-          .select('id, name, unit')
-          .eq('restaurant_id', restaurant.id)
-          .eq('is_active', true)
-          .order('created_at', { ascending: true });
-
-        if (activeMenus) {
-          setMenus(activeMenus);
+        if (!session) {
+          router.push('/login');
+          return;
         }
 
-        loadHistorySummary();
-      }
-      setLoading(false);
-    }
+        const { data: restaurants } = await supabase
+          .from('restaurants')
+          .select('id')
+          .eq('owner_id', session.user.id)
+          .limit(1);
+          
+        const restaurant = restaurants?.[0];
 
+        if (restaurant) {
+          setRestaurantId(restaurant.id);
+          await Promise.all([
+            loadMenus(restaurant.id),
+            loadHistory(restaurant.id)
+          ]);
+          
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tmrStr = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' + String(tomorrow.getDate()).padStart(2, '0');
+          const { count } = await supabase
+            .from('daily_production')
+            .select('*', { count: 'exact', head: true })
+            .eq('production_date', tmrStr);
+          if (count && count > 0) setHasTomorrowStock(true);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
     initData();
   }, [supabase, router]);
 
-  async function loadHistorySummary() {
-    // Memuat riwayat penjualan agregat (7 hari terakhir yang ada datanya)
-    const { data } = await supabase
+  useEffect(() => {
+    if (restaurantId) {
+      loadSalesForDate(selectedDate, menus);
+    }
+  }, [selectedDate, restaurantId, menus.length]);
+
+  const loadMenus = async (restId: string) => {
+    const { data: menuData } = await supabase
+      .from('menus')
+      .select('id, name, unit')
+      .eq('restaurant_id', restId)
+      .eq('is_active', true)
+      .order('name');
+
+    if (menuData) {
+      setMenus(menuData);
+    }
+  };
+
+  const loadHistory = async (restId: string) => {
+    const { data: salesData } = await supabase
       .from('daily_sales')
-      .select('sales_date, quantity_sold')
+      .select(`sales_date, quantity_sold, menus!inner(id)`)
+      .eq('menus.restaurant_id', restId)
       .order('sales_date', { ascending: false });
 
-    if (data) {
-      const grouped = data.reduce((acc, curr) => {
-        if (!acc[curr.sales_date]) {
-          acc[curr.sales_date] = { totalQty: 0, count: 0 };
+    if (salesData) {
+      const summaryMap: Record<string, HistorySummary> = {};
+      salesData.forEach((item: any) => {
+        const date = item.sales_date;
+        if (!summaryMap[date]) {
+          summaryMap[date] = { date: date, totalQuantity: 0, menusCount: 0 };
         }
-        acc[curr.sales_date].totalQty += curr.quantity_sold;
-        acc[curr.sales_date].count += 1;
-        return acc;
-      }, {} as Record<string, { totalQty: number, count: number }>);
+        summaryMap[date].totalQuantity += item.quantity_sold;
+        summaryMap[date].menusCount += 1;
+      });
 
-      const histArr = Object.entries(grouped)
-        .map(([date, stats]) => ({
-          date,
-          totalQuantity: stats.totalQty,
-          menusCount: stats.count
-        }))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 5); // Tampilkan 5 data terakhir
+      const summaryArray = Object.values(summaryMap)
+        .sort((a, c) => new Date(c.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 14); // Show last 14 days
 
-      setHistory(histArr);
+      setHistory(summaryArray);
     }
-  }
+  };
 
-  useEffect(() => {
-    async function loadSalesForDate() {
-      if (!restaurantId || menus.length === 0 || !selectedDate) return;
+  const loadSalesForDate = async (date: string, currentMenus: Menu[]) => {
+    if (currentMenus.length === 0) {
+      setLoading(false);
+      return;
+    }
 
-      setLoading(true);
-      setError('');
-      setSuccess('');
+    setLoading(true);
+    setError('');
+    setSuccess('');
 
-      // Load sales data for the selected date
-      const { data: existingSales, error } = await supabase
+    try {
+      // Fetch Sales
+      const { data: existingSales, error: salesError } = await supabase
         .from('daily_sales')
         .select('menu_id, quantity_sold')
-        .eq('sales_date', selectedDate);
+        .in('menu_id', currentMenus.map(m => m.id))
+        .eq('sales_date', date);
 
-      if (error) {
-        console.error('Error fetching sales:', error);
-        setError('Gagal memuat data penjualan untuk tanggal ini.');
+      if (salesError) {
+        if (Object.keys(salesError).length > 0) {
+          console.warn('Error fetching sales:', salesError);
+          setError('Gagal memuat data penjualan untuk tanggal ini.');
+        }
       } else if (existingSales) {
         const newSalesData: Record<string, string> = {};
-        existingSales.forEach(sale => {
-          newSalesData[sale.menu_id] = sale.quantity_sold.toString();
+        existingSales.forEach((item) => {
+          newSalesData[item.menu_id] = item.quantity_sold.toString();
         });
         setSalesData(newSalesData);
       }
+
+      // Fetch Production (Stok)
+      const { data: existingProduction, error: prodError } = await supabase
+        .from('daily_production')
+        .select('menu_id, quantity')
+        .in('menu_id', currentMenus.map(m => m.id))
+        .eq('production_date', date);
+
+      if (!prodError && existingProduction) {
+        const newProdData: Record<string, string> = {};
+        existingProduction.forEach((item) => {
+          newProdData[item.menu_id] = item.quantity.toString();
+        });
+        setProductionData(newProdData);
+      }
+    } catch (err) {
+      console.error("Error in loadSalesForDate:", err);
+      setError('Terjadi kesalahan saat memuat data.');
+    } finally {
       setLoading(false);
     }
-
-    loadSalesForDate();
-  }, [selectedDate, restaurantId, menus.length, supabase]);
+  };
 
   const handleSaleChange = (menuId: string, value: string) => {
-    setSalesData(prev => ({
-      ...prev,
-      [menuId]: value
-    }));
+    setSalesData(prev => ({ ...prev, [menuId]: value }));
+  };
+
+  const handleProductionChange = (menuId: string, value: string) => {
+    setProductionData(prev => ({ ...prev, [menuId]: value }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restaurantId) return;
-
     setSaving(true);
     setError('');
     setSuccess('');
 
-    // Siapkan data yang akan diupsert (hanya yang diisi saja)
-    const payload = Object.entries(salesData)
-      .filter(([_, qty]) => qty !== '' && !isNaN(parseFloat(qty)))
-      .map(([menuId, qty]) => ({
-        menu_id: menuId,
+    try {
+      // Save Sales
+      const salesPayload = menus.map(menu => ({
+        menu_id: menu.id,
         sales_date: selectedDate,
-        quantity_sold: parseInt(qty.replace(/\./g, ''), 10)
+        quantity_sold: parseInt(salesData[menu.id] || '0', 10)
       }));
+      const { error: salesErr } = await supabase
+        .from('daily_sales')
+        .upsert(salesPayload, { onConflict: 'menu_id, sales_date' });
+      if (salesErr) throw salesErr;
 
-    if (payload.length === 0) {
-      setError('Belum ada data kuantitas penjualan yang valid untuk disimpan.');
+      // Save Production (Stok)
+      const prodPayload = menus.map(menu => ({
+        menu_id: menu.id,
+        production_date: selectedDate,
+        quantity: parseInt(productionData[menu.id] || '0', 10)
+      }));
+      const { error: prodErr } = await supabase
+        .from('daily_production')
+        .upsert(prodPayload, { onConflict: 'menu_id, production_date' });
+      if (prodErr) throw prodErr;
+
+      setSuccess('Data penjualan dan stok berhasil disimpan!');
+      if (restaurantId) {
+        await loadHistory(restaurantId);
+      }
+
+      setTimeout(() => setSuccess(''), 4000);
+    } catch (err: any) {
+      setError(err.message || 'Gagal menyimpan data');
+    } finally {
       setSaving(false);
-      return;
     }
-
-    const { error: upsertError } = await supabase
-      .from('daily_sales')
-      .upsert(payload, { onConflict: 'menu_id,sales_date' });
-
-    if (upsertError) {
-      setError('Gagal menyimpan riwayat penjualan: ' + upsertError.message);
-    } else {
-      setSuccess('Data penjualan untuk tanggal tersebut berhasil disimpan!');
-      loadHistorySummary(); // Refresh riwayat setelah simpan
-      setTimeout(() => setSuccess(''), 3000);
-    }
-    setSaving(false);
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('id-ID', {
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
       weekday: 'long',
-      day: 'numeric',
+      year: 'numeric',
       month: 'long',
-      year: 'numeric'
-    });
+      day: 'numeric',
+    };
+    return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Input Penjualan Harian</h2>
-        <p className="text-gray-500 mt-1 max-w-3xl">
-          Catat jumlah menu terjual setiap hari sebagai data historis untuk membantu Sistem memprediksi kebutuhan produksi.
-        </p>
+    <div className="max-w-6xl mx-auto space-y-6 pb-12">
+      <div className="flex flex-col gap-1 border-b border-gray-100 pb-4">
+        <h1 className="text-2xl font-bold text-gray-900">Input Data Harian</h1>
+        <p className="text-gray-500 text-sm">Catat stok dan penjualan atau pantau prediksi yang sudah disimpan.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* KOLOM KIRI: FORM INPUT */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-gray-200/60">
-            <form onSubmit={handleSave} className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* KOLOM KIRI */}
+        <div className="lg:col-span-3">
+          <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 14V6m8 8v-4m-4 4v6M0 22h24m-2 0v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-1h24z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Form Penjualan</h3>
+                </div>
+              </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Pencatatan</label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-gray-700">Tanggal:</label>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="block w-full sm:w-auto rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                    max={new Date().toLocaleDateString('en-CA')}
-                    required
+                    className="block w-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    max={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                   />
                 </div>
-                <div className="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
-                  <span className="font-medium text-gray-700">Tips:</span> Masukkan angka 0 jika menu tidak terjual sama sekali.
-                </div>
+                {hasTomorrowStock && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                    Stok besok telah dijadwalkan
+                  </span>
+                )}
               </div>
+            </div>
 
-              {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>{error}</div>}
+            <form onSubmit={handleSave} className="p-5 sm:p-6 flex flex-col gap-6">
+              {error && <div className="text-red-700 text-sm bg-red-50 p-3 rounded-lg border border-red-200 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 0011v 4a1 1 0 102 0v4-1a1 1 0 0011z" clipRule="evenodd" /></svg>{error}</div>}
               {success && <div className="text-green-700 text-sm bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{success}</div>}
 
               {loading ? (
@@ -246,19 +307,36 @@ export default function SalesPage() {
               ) : (
                 <div>
                   <div className="grid grid-cols-12 gap-4 font-medium text-gray-500 text-xs uppercase tracking-wider px-2 hidden sm:grid mb-2">
-                    <div className="col-span-8">Daftar Menu</div>
+                    <div className="col-span-4">Daftar Menu</div>
+                    <div className="col-span-4 text-right">Stok (Awal)</div>
                     <div className="col-span-4 text-right">Jumlah Terjual</div>
                   </div>
 
                   <div className="border-t border-gray-100">
                     {menus.map((menu) => (
                       <div key={menu.id} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center py-3 sm:py-4 px-2 border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                        <div className="sm:col-span-8 flex flex-col justify-center">
+                        <div className="sm:col-span-4 flex flex-col justify-center">
                           <span className="font-medium text-gray-900">{menu.name}</span>
                           <span className="text-xs text-gray-500 mt-0.5">
                             Satuan: {menu.unit}
                           </span>
                         </div>
+
+                        <div className="sm:col-span-4 relative mt-1 sm:mt-0">
+                          <label className="block sm:hidden text-xs font-medium text-gray-500 mb-1.5">Stok</label>
+                          <div className="relative flex rounded-lg ring-1 ring-inset ring-gray-200 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 overflow-hidden bg-white transition-all">
+                            <FormattedNumberInput
+                              value={productionData[menu.id] || ''}
+                              onChange={(val) => handleProductionChange(menu.id, val)}
+                              className="block w-full border-0 bg-transparent py-2 pl-3 pr-2 text-gray-900 focus:ring-0 text-right sm:text-base"
+                              placeholder="0"
+                            />
+                            <div className="flex items-center justify-center bg-gray-50 px-3 border-l border-gray-200 text-sm text-gray-500 select-none min-w-[3.5rem]">
+                              {menu.unit}
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="sm:col-span-4 relative mt-1 sm:mt-0">
                           <label className="block sm:hidden text-xs font-medium text-gray-500 mb-1.5">Jumlah Terjual</label>
                           <div className="relative flex rounded-lg ring-1 ring-inset ring-gray-200 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 overflow-hidden bg-white transition-all">
@@ -278,12 +356,12 @@ export default function SalesPage() {
                   </div>
                 </div>
               )}
-
+              
+              // Save button
               {!loading && menus.length > 0 && (
                 <div className="flex justify-end pt-4">
                   <button
-                    type="button"
-                    onClick={handleSave}
+                    type="submit"
                     disabled={saving}
                     className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-50 flex items-center gap-2"
                   >
@@ -293,7 +371,7 @@ export default function SalesPage() {
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                     )}
-                    {saving ? 'Menyimpan...' : 'Simpan Penjualan'}
+                    {saving ? 'Menyimpan...' : 'Simpan Data'}
                   </button>
                 </div>
               )}
@@ -316,7 +394,7 @@ export default function SalesPage() {
                 <p className="text-sm text-gray-500">Belum ada data penjualan.</p>
               </div>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-2.5 max-h-[calc(100vh-12rem)] overflow-y-auto pr-1">
                 {history.map((item, idx) => (
                   <button
                     key={idx}

@@ -60,7 +60,8 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="text-center">
+      <div className="text-center flex flex-col items-center">
+        <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-10 mb-6 object-contain" />
         <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
           Masuk ke CaterWise
         </h2>

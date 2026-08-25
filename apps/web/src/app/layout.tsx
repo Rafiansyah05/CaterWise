@@ -10,6 +10,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "CaterWise",
   description: "Web-based decision-support platform untuk membantu rumah makan prasmanan menentukan jumlah produksi makanan berdasarkan pola permintaan historis.",
+  icons: {
+    icon: "/logo/logo_bg.png",
+  },
 };
 
 export default function RootLayout({

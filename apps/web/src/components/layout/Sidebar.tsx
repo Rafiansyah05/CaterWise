@@ -66,7 +66,7 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
     <>
       {/* Mobile Topbar & Hamburger */}
       <div className="md:hidden flex items-center justify-between bg-white p-4 border-b border-gray-200 sticky top-0 z-30">
-        <div className="text-xl font-bold text-blue-600">CaterWise</div>
+        <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-9 object-contain" />
         <button onClick={() => setIsMobileOpen(true)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-md">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
         </button>
@@ -88,13 +88,16 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
         `}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
-          {!isCollapsed && <span className="text-xl font-bold text-blue-600 truncate">CaterWise</span>}
-          {isCollapsed && <span className="text-xl font-bold text-blue-600 mx-auto">CW</span>}
+        <div className={`flex ${isCollapsed ? 'flex-col py-5 gap-4' : 'h-16 items-center justify-between px-4'} border-b border-gray-100 shrink-0`}>
+          {!isCollapsed ? (
+            <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-10 object-contain max-w-[160px]" />
+          ) : (
+            <img src="/logo/logo_no_bg.png" alt="CW" className="h-8 w-8 mx-auto object-contain" />
+          )}
           
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)} 
-            className="hidden md:block p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors"
+            className={`hidden md:block p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors ${isCollapsed ? 'mx-auto' : ''}`}
           >
             {isCollapsed ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" /></svg>
@@ -103,7 +106,7 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
             )}
           </button>
 
-          <button onClick={() => setIsMobileOpen(false)} className="md:hidden p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors">
+          <button onClick={() => setIsMobileOpen(false)} className={`md:hidden p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors ${isCollapsed ? 'mx-auto' : ''}`}>
              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
         </div>

@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 
 interface ConfirmDialogProps {
+  isInfo?: boolean;
   isOpen: boolean;
   title: string;
-  message: string;
+  message: string | React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
@@ -13,13 +14,14 @@ interface ConfirmDialogProps {
 
 export function ConfirmDialog({
   isOpen,
+  isInfo = false,
   title,
   message,
   confirmText = 'Konfirmasi',
   cancelText = 'Batal',
   onConfirm,
   onCancel,
-  isDanger = true
+  isDanger = false,
 }: ConfirmDialogProps) {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -56,29 +58,29 @@ export function ConfirmDialog({
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">{message}</p>
+            <div className="text-sm text-gray-500 mt-2 leading-relaxed">{message}</div>
           </div>
         </div>
-        <div className="mt-7 flex gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all active:scale-[0.98]"
-          >
-            {cancelText}
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-1 transition-all active:scale-[0.98] ${
-              isDanger 
-                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
-                : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-            }`}
-          >
-            {confirmText}
-          </button>
-        </div>
+            <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 sm:gap-0">
+              {!isInfo && (
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto transition-all"
+                  onClick={onCancel}
+                >
+                  {cancelText}
+                </button>
+              )}
+              <button
+                type="button"
+                className={`inline-flex w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm sm:w-auto transition-all ${
+                  isInfo ? 'bg-blue-600 hover:bg-blue-500' : (isDanger ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500')
+                }`}
+                onClick={onConfirm}
+              >
+                {isInfo ? 'Tutup' : confirmText}
+              </button>
+            </div>
       </div>
     </div>
   );
