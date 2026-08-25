@@ -10,10 +10,20 @@ Project ini menggunakan arsitektur monorepo dengan **pnpm workspaces**:
 - `supabase`: Konfigurasi dan migrasi database Supabase.
 
 ## Tech Stack
-- **Framework**: Next.js (App Router)
+
+**Web Application:**
+- **Framework**: Next.js 15+ (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database & Auth**: Supabase (PostgreSQL)
+- **Styling**: Tailwind CSS v4
+
+**AI & Forecasting Backend:**
+- **Framework**: FastAPI
+- **Language**: Python
+- **Machine Learning**: XGBoost, scikit-learn, Pandas
+- **Generative AI**: Google Gemini API (Flash Lite)
+
+**Database & Infrastructure:**
+- **Platform**: Supabase (PostgreSQL + Auth + RLS)
 
 ## Project Progress (Agile Sprints)
 
@@ -48,38 +58,71 @@ Proses pengembangan CaterWise dilakukan dengan metodologi Agile untuk memastikan
 
 ## Cara Menjalankan Project
 
-### 1. Prasyarat
-- Node.js (v18 atau lebih baru)
-- pnpm (v9 atau lebih baru)
-- Docker Desktop (jika ingin menjalankan Supabase secara lokal)
-- Supabase CLI
+Aplikasi ini berjalan dengan dua *service* terpisah (Frontend Next.js dan Backend Python) serta menggunakan database lokal Supabase.
 
-### 2. Install Dependensi
+### 1. Prasyarat
+- **Node.js** (v18 atau lebih baru)
+- **pnpm** (v9 atau lebih baru)
+- **Python** (v3.10 atau lebih baru)
+- **Docker Desktop** (wajib berjalan jika menggunakan Supabase lokal)
+- **Supabase CLI**
+
+### 2. Install Dependensi Node (Frontend)
+Jalankan perintah ini di root *folder* proyek:
 ```bash
 pnpm install
 ```
 
-### 3. Menjalankan Database Lokal (Supabase)
-Pastikan Docker sudah berjalan, kemudian eksekusi:
+### 3. Install Dependensi Python (Backend)
+Buka terminal baru, masuk ke folder `apps/api/` dan buat *virtual environment*:
+```bash
+cd apps/api
+python -m venv .venv
+
+# Aktivasi venv (Windows):
+.venv\Scripts\activate
+# Aktivasi venv (Mac/Linux):
+source .venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+### 4. Menjalankan Database Lokal (Supabase)
+Pastikan aplikasi Docker sudah berjalan, kemudian eksekusi di root proyek:
 ```bash
 npx supabase start
 ```
-Perintah ini akan menjalankan container Supabase dan secara otomatis menjalankan migrasi yang ada di `supabase/migrations/`.
+*Perintah ini akan mendownload *image* Supabase, menjalankannya, dan secara otomatis mengeksekusi skema database yang ada di `supabase/migrations/`.*
+Setelah selesai, terminal akan menampilkan **API URL** dan **anon key**.
 
-Setelah berhasil, Anda akan mendapatkan `API URL` dan `anon key`.
-
-### 4. Setup Environment Variables
-Buat file `.env.local` di dalam folder `apps/web/`:
+### 5. Konfigurasi Environment Variables
+Buat sebuah file bernama `.env` di root proyek (atau di dalam `apps/web/.env.local`) yang berisi:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_api_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_api_url_disini
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_disini
+GEMINI_API_KEY=your_gemini_api_key_disini
 ```
+*(Backend Python akan secara otomatis membaca variabel-variabel di atas).*
 
-### 5. Menjalankan Aplikasi Web
+### 6. Menjalankan Aplikasi Web & AI (2 Terminal)
+
+Untuk menjalankan CaterWise secara penuh, Anda membutuhkan 2 terminal yang berjalan bersamaan:
+
+**Terminal 1 (Frontend Next.js):**
+Pastikan berada di root direktori, lalu jalankan:
 ```bash
 pnpm dev
 ```
-Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+*Frontend akan berjalan di [http://localhost:3000](http://localhost:3000)*.
+
+**Terminal 2 (Backend Python FastAPI):**
+Pastikan *virtual environment* masih aktif, masuk ke folder `apps/api/`, lalu jalankan:
+```bash
+cd apps/api
+python main.py
+```
+*Backend AI akan berjalan di [http://localhost:8000](http://localhost:8000)*.
 
 ---
-**Note:** Client Supabase SSR sudah terkonfigurasi di `apps/web/src/utils/supabase/` dan terdapat middleware yang akan otomatis melakukan session refresh pada Next.js app.
+**Note:** Client Supabase SSR sudah terkonfigurasi di `apps/web/src/utils/supabase/` lengkap dengan fungsi *middleware* yang otomatis memperbarui sesi (*session refresh*) untuk Next.js.
