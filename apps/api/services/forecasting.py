@@ -9,14 +9,12 @@ import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 
-# Setup Open-Meteo client
 cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
 retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
 openmeteo = openmeteo_requests.Client(session=retry_session)  # type: ignore
 
 id_holidays = holidays.ID()
 
-# Cache cuaca di memory untuk mempercepat proses (Mencegah N+1 API Calls)
 _local_weather_cache: Dict[str, float] = {}
 
 def prefetch_weather(start_date: pd.Timestamp, end_date: pd.Timestamp):
@@ -25,7 +23,7 @@ def prefetch_weather(start_date: pd.Timestamp, end_date: pd.Timestamp):
     missing_dates = [d for d in date_range if d.strftime('%Y-%m-%d') not in _local_weather_cache]
     
     if not missing_dates:
-        return # Semua data sudah ada di cache
+        return
         
     fetch_start = min(missing_dates)
     fetch_end = max(missing_dates)
@@ -33,7 +31,7 @@ def prefetch_weather(start_date: pd.Timestamp, end_date: pd.Timestamp):
     try:
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
-            "latitude": -7.2504, # Surabaya
+            "latitude": -7.2504, 
             "longitude": 112.7688,
             "daily": "weather_code",
             "timezone": "Asia/Jakarta",
@@ -61,7 +59,6 @@ def get_weather_code(target_date: pd.Timestamp) -> float:
     if date_str in _local_weather_cache:
         return _local_weather_cache[date_str]
         
-    # Fallback jika somehow belum ter-fetch
     try:
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
@@ -91,18 +88,17 @@ def get_holiday_multiplier(target_date: pd.Timestamp) -> float:
     if date_obj in id_holidays:
         holiday_name = id_holidays.get(date_obj).lower()
         if "fitri" in holiday_name or "lebaran" in holiday_name or "adha" in holiday_name:
-            return 0.3 # Turun drastis jika libur hari raya besar
+            return 0.3
         else:
-            return 1.15 # Naik sedikit jika libur nasional biasa
+            return 1.15
             
-    if target_date.dayofweek == 6: # Minggu
+    if target_date.dayofweek == 6:
         return 1.15
         
     return 1.0
 
 def mean_absolute_percentage_error(y_true, y_pred): 
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    # Avoid division by zero
     non_zero_mask = y_true != 0
     if not np.any(non_zero_mask):
         return 0.0
@@ -116,12 +112,10 @@ def wma_predict(series: pd.Series, target_date: pd.Timestamp, window: int = 7) -
     weights = np.arange(1, window + 1)
     wma = np.dot(series.iloc[-window:].to_numpy(dtype=float), weights) / weights.sum()
     
-    # Adjust prediction based on calendar events for WMA
     multiplier = get_holiday_multiplier(target_date)
     return float(wma) * multiplier
 
 def extract_calendar_features(target_date: pd.Timestamp) -> List[float]:
-    # day_of_week (0=Mon, 6=Sun), is_weekend, month, weather_category, is_major_holiday
     date_obj = target_date.date()
     is_major_holiday = 0.0
     if date_obj in id_holidays:
@@ -140,7 +134,6 @@ def extract_calendar_features(target_date: pd.Timestamp) -> List[float]:
     ]
 
 def prepare_xgboost_data(df: pd.DataFrame, window: int = 7) -> Tuple[pd.DataFrame, pd.Series]:
-    # df must have 'quantity_sold' and 'sales_date' sorted by date
     X = []
     y = []
     
@@ -178,7 +171,6 @@ def evaluate_models(df: pd.DataFrame, target_ts: pd.Timestamp) -> Dict[str, Any]
             "mape": None
         }
 
-    # Train XGBoost sekali pada n-5 data terakhir untuk evaluasi, lalu 1x lagi pada full data
     train_for_cv = df.iloc[:-5]
     X_cv, y_cv = prepare_xgboost_data(train_for_cv, window)
     xgb_cv = XGBRegressor(
@@ -189,7 +181,6 @@ def evaluate_models(df: pd.DataFrame, target_ts: pd.Timestamp) -> Dict[str, Any]
     if len(X_cv) >= 3:
         xgb_cv.fit(X_cv, y_cv)
     
-    # Walk-forward validation 5 hari
     wma_preds, xgb_preds, actuals = [], [], []
     train_vals = train_for_cv['quantity_sold'].values.tolist()
     
@@ -217,7 +208,6 @@ def evaluate_models(df: pd.DataFrame, target_ts: pd.Timestamp) -> Dict[str, Any]
     wma_mape = mean_absolute_percentage_error(actuals, wma_preds)
     xgb_mape = mean_absolute_percentage_error(actuals, xgb_preds)
 
-    # Final prediction: latih ulang XGBoost pada seluruh data
     X_full, y_full = prepare_xgboost_data(df, window)
     xgb_final = XGBRegressor(
         n_estimators=40, max_depth=3, learning_rate=0.08,
@@ -248,7 +238,6 @@ def evaluate_models(df: pd.DataFrame, target_ts: pd.Timestamp) -> Dict[str, Any]
         }
 
 def get_forecast_for_restaurant(restaurant_id: str, target_date: str) -> List[Dict[str, Any]]:
-    # 1. Fetch active menus for restaurant
     menus_response = supabase.table('menus').select('id, name, unit').eq('restaurant_id', restaurant_id).eq('is_active', True).execute()
     menus = menus_response.data
     
@@ -259,9 +248,7 @@ def get_forecast_for_restaurant(restaurant_id: str, target_date: str) -> List[Di
     
     for menu in menus:
         menu_id = menu['id']
-        
-        # 2. Fetch daily sales for this menu
-        # We fetch up to target_date (exclusive)
+
         sales_response = supabase.table('daily_sales') \
             .select('sales_date, quantity_sold') \
             .eq('menu_id', menu_id) \
@@ -272,7 +259,6 @@ def get_forecast_for_restaurant(restaurant_id: str, target_date: str) -> List[Di
         sales_data = sales_response.data
         
         if not sales_data or len(sales_data) < 3:
-            # Not enough data for any meaningful forecast
             forecasts.append({
                 "menu_id": menu_id,
                 "menu_name": menu['name'],

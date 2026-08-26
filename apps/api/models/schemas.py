@@ -3,7 +3,7 @@ from typing import List, Dict, Optional, Any
 
 class ForecastRequest(BaseModel):
     restaurant_id: str
-    target_date: str # YYYY-MM-DD
+    target_date: str
     weather_info: Optional[str] = None
 
 class ForecastItem(BaseModel):
@@ -11,7 +11,7 @@ class ForecastItem(BaseModel):
     menu_name: str
     menu_unit: Optional[str] = "porsi"
     predicted_quantity: float
-    model_used: str # "WMA" or "XGBoost"
+    model_used: str
     ai_justification: Optional[str] = None
     mae: Optional[float] = None
     mape: Optional[float] = None

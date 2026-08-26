@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { API_BASE_URL } from '@/utils/api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useRouter } from 'next/navigation';
 
@@ -43,7 +44,7 @@ export default function DashboardPage() {
   const confirmDeleteForecast = async () => {
     if (!forecastToDelete) return;
     try {
-      const res = await fetch(`http://localhost:8000/forecast/${forecastToDelete}`, {
+      const res = await fetch(`${API_BASE_URL}/forecast/${forecastToDelete}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Gagal menghapus riwayat dari server');

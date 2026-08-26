@@ -6,10 +6,9 @@ from services.gemini import generate_forecast_insights, generate_simulation_summ
 
 app = FastAPI(title="CaterWise API")
 
-# Allow frontend to call the API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict to actual frontend URL
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,7 +24,6 @@ def generate_forecast(request: ForecastRequest):
         from core.supabase import supabase
         import asyncio, concurrent.futures
         
-        # 1. Cek Caching di Database
         cached = supabase.table('forecast_history').select('*').eq('restaurant_id', request.restaurant_id).eq('target_date', request.target_date).execute()
         if cached.data and len(cached.data) > 0:
             history = cached.data[0]
@@ -47,7 +45,6 @@ def generate_forecast(request: ForecastRequest):
                 ai_insight=history['ai_insight']
             )
 
-        # 2. Hitung Prediksi Baru — jalankan ML dan Gemini SECARA PARALEL
         import pandas as pd
         from services.forecasting import id_holidays
         target_ts = pd.to_datetime(request.target_date)
@@ -61,15 +58,11 @@ def generate_forecast(request: ForecastRequest):
         else:
             holiday_info = "Hari Kerja Biasa"
 
-        # Jalankan ML forecasting di thread pool (non-blocking)
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            # Thread 1: hitung semua prediksi ML
             future_forecast = executor.submit(get_forecast_for_restaurant, request.restaurant_id, request.target_date)
             
-            # Tunggu hasil ML (ini yang menentukan prompt Gemini)
             forecast_data = future_forecast.result()
             
-            # Thread 2: setelah data prediksi ada, kirim ke Gemini secara terpisah
             future_ai = executor.submit(generate_forecast_insights, forecast_data, request.target_date, request.weather_info or "", holiday_info)
             insight_str = future_ai.result()
 
@@ -103,7 +96,6 @@ def generate_forecast(request: ForecastRequest):
         overall_insight_val = insight_json.get('overall_insight', 'Prediksi berhasil dibuat.')
         overall_insight = str(overall_insight_val) if overall_insight_val is not None else 'Prediksi berhasil dibuat.'
         
-        # 3. Simpan Ke Database
         supabase.table('forecast_history').upsert({
             'restaurant_id': request.restaurant_id,
             'target_date': request.target_date,

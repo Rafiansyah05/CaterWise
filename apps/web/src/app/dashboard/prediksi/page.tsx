@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { API_BASE_URL } from '@/utils/api';
 import Link from 'next/link';
 
 interface ForecastItem {
@@ -84,7 +85,7 @@ export default function PrediksiPage() {
         setWeatherInfo(wName);
         setLoadingStep(2);
 
-        const res = await fetch('http://localhost:8000/forecast', {
+        const res = await fetch(`${API_BASE_URL}/forecast`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ restaurant_id: restaurant.id, target_date: dateStr, weather_info: wName })

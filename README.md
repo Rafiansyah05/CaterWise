@@ -89,6 +89,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbG...
 
 # Gemini API Key (Dari Google AI Studio)
 GEMINI_API_KEY=AIzaSy...
+
+# Backend API URL (Ubah ke https://api.caterwise.web.id saat production)
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 ### 3. Install Dependensi Node (Frontend)

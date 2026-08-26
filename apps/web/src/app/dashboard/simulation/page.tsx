@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/utils/api';
 import Link from 'next/link';
 
 interface MenuData {
@@ -144,7 +145,7 @@ export default function SimulationPage() {
           }
         } catch (e) { /* fallback default cerah */ }
 
-      const res = await fetch('http://localhost:8000/simulate', {
+      const res = await fetch(`${API_BASE_URL}/simulate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
