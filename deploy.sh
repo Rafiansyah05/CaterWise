@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 set -e
 
 echo "=== [1/3] Menarik perubahan terbaru dari Git... ==="

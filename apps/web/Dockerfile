@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -10,7 +10,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json ./apps/web/
 
 # Enable pnpm
-RUN corepack enable pnpm && pnpm install --frozen-lockfile --filter web...
+RUN npm install -g pnpm@9 && pnpm install --frozen-lockfile --filter web...
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -20,7 +20,7 @@ COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY . .
 
 # Build Next.js
-RUN corepack enable pnpm && pnpm --filter web build
+RUN npm install -g pnpm@9 && pnpm --filter web build
 
 # Production image, copy all the files and run next
 FROM base AS runner
