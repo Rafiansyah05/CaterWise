@@ -10,7 +10,11 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json ./apps/web/
 
 # Enable pnpm
-RUN npm install -g pnpm@9 && pnpm install --frozen-lockfile --filter web...
+RUN npm install -g pnpm@9 && \
+    pnpm config set fetch-timeout 600000 && \
+    pnpm config set fetch-retries 10 && \
+    pnpm config set network-concurrency 1 && \
+    pnpm install --frozen-lockfile --filter web...
 
 # Rebuild the source code only when needed
 FROM base AS builder
