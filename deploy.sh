@@ -1,17 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "=== [1/4] Menarik perubahan terbaru dari Git... ==="
+echo "=== [1/3] Menarik script terbaru dari Git... ==="
 git pull origin main
 
-echo "=== [2/4] Membangun kontainer API (Berurutan agar tidak berebut bandwidth)... ==="
-docker compose build api
+echo "=== [2/3] Menarik Image Docker Terbaru dari Docker Hub... ==="
+docker compose pull
 
-echo "=== [3/4] Membangun kontainer Web... ==="
-docker compose build web
+echo "=== [3/3] Menjalankan Container... ==="
+docker compose up -d --remove-orphans
 
-echo "=== [4/4] Menjalankan kontainer dan membersihkan image lama... ==="
-docker compose up -d
-docker image prune -f
-
-echo "=== ✅ Deployment Berhasil! ==="
+echo "=== Selesai! Deployment aktif. ==="

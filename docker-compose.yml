@@ -1,9 +1,8 @@
 
 services:
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
+    image: rafiansyah567/caterwise-web:latest
+    container_name: caterwise-web
     ports:
       - "3050:3000"
     env_file:
@@ -11,9 +10,8 @@ services:
     restart: always
 
   api:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+    image: rafiansyah567/caterwise-api:latest
+    container_name: caterwise-api
     ports:
       - "8050:8000"
     env_file:
