@@ -11,10 +11,10 @@ COPY apps/web/package.json ./apps/web/
 
 # Enable pnpm
 RUN npm install -g pnpm@9 && \
-    pnpm config set fetch-timeout 600000 && \
-    pnpm config set fetch-retries 10 && \
-    pnpm config set network-concurrency 1 && \
-    pnpm install --frozen-lockfile --filter web...
+    pnpm config set registry https://registry.npmmirror.com && \
+    pnpm config set fetch-timeout 1800000 && \
+    pnpm config set fetch-retries 5 && \
+    pnpm install --no-frozen-lockfile --filter web...
 
 # Rebuild the source code only when needed
 FROM base AS builder
