@@ -266,7 +266,7 @@ export default function SalesPage() {
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="block w-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    className="block w-full sm:w-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                     max={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                   />
                 </div>
@@ -307,7 +307,7 @@ export default function SalesPage() {
                 </div>
               ) : (
                 <div>
-                  <div className="grid grid-cols-12 gap-4 font-medium text-gray-500 text-xs uppercase tracking-wider px-2 hidden sm:grid mb-2">
+                  <div className="hidden sm:grid sm:grid-cols-12 gap-4 font-medium text-gray-500 text-xs uppercase tracking-wider px-2 mb-2">
                     <div className="col-span-4">Daftar Menu</div>
                     <div className="col-span-4 text-right">Stok (Awal)</div>
                     <div className="col-span-4 text-right">Jumlah Terjual</div>

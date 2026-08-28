@@ -350,16 +350,16 @@ export default function DashboardPage() {
               <div key={item.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm transition-all">
                 <div
                   onClick={() => setExpandedHistory(expandedHistory === item.id ? null : item.id)}
-                  className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between gap-3 p-4 sm:p-5 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="bg-blue-100 text-blue-600 p-3 rounded-md">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="bg-blue-100 text-blue-600 p-2.5 sm:p-3 rounded-md shrink-0">
                       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 1a.75.75 0 0 1-1.5 0v1h-.75a4.5 4.5 0 0 0-4.5 4.5v10.5a3.75 3.75 0 0 0 3.75 3.75h15.5a3.75 3.75 0 0 0 3.75-3.75v-10.5a4.5 4.5 0 0 0-4.5-4.5h-.75v-1a.75.75 0 0 1-1.5 0v1h-12v-1zm-2.25 5H4.5a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v.5h-15v-.5zm0 2v10.5a2.25 2.25 0 0 0 2.25 2.25h15.5a2.25 2.25 0 0 0 2.25-2.25v-10.5h-20z" /></svg>
                     </div>
                     <span className="font-bold text-gray-900">Prediksi Untuk { new Date(item.target_date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
                       type="button"
                       onClick={(e) => requestDeleteForecast(item.id, e)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
@@ -385,7 +385,8 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     
-                    <table className="w-full text-left text-sm text-gray-600 bg-white rounded-lg overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto rounded-lg shadow-sm">
+                    <table className="w-full min-w-[36rem] text-left text-sm text-gray-600 bg-white">
                       <thead className="bg-gray-100 text-xs uppercase font-semibold text-gray-500">
                         <tr>
                           <th className="px-4 py-3">Menu</th>
@@ -425,6 +426,7 @@ export default function DashboardPage() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 )}
               </div>

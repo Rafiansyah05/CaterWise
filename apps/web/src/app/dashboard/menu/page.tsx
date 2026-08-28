@@ -244,7 +244,7 @@ export default function MenuPage() {
         
         <form onSubmit={handleSave} className="space-y-6">
           <div className="space-y-4">
-            <div className="grid grid-cols-12 gap-4 font-semibold text-gray-700 text-sm px-2 hidden sm:grid">
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 font-semibold text-gray-700 text-sm px-2">
               <div className="col-span-4">Nama Menu</div>
               <div className="col-span-2">Satuan</div>
               <div className="col-span-3">Harga Jual (Rp)</div>

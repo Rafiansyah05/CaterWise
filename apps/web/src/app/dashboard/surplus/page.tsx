@@ -203,19 +203,23 @@ export default function SurplusPage() {
           ) : (
             <div className="space-y-4">
               {/* Header */}
-              <div className="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase pb-2 border-b">
-                <div className="col-span-6 sm:col-span-6">Menu</div>
-                <div className="col-span-3 sm:col-span-3 text-center">Estimasi Sistem</div>
-                <div className="col-span-3 sm:col-span-3 text-center">Fisik Aktual</div>
+              <div className="hidden sm:grid sm:grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase pb-2 border-b">
+                <div className="sm:col-span-6">Menu</div>
+                <div className="sm:col-span-3 text-center">Estimasi Sistem</div>
+                <div className="sm:col-span-3 text-center">Fisik Aktual</div>
               </div>
-              
+
               {/* List */}
               {items.map((item) => (
-                <div key={item.menu_id} className="grid grid-cols-12 gap-4 items-center py-2">
-                  <div className="col-span-6 sm:col-span-6 font-medium text-gray-900">
+                <div
+                  key={item.menu_id}
+                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 sm:items-center py-3 sm:py-2 border-b border-gray-100 last:border-b-0 sm:border-b-0"
+                >
+                  <div className="sm:col-span-6 font-medium text-gray-900">
                     {item.menu_name}
                   </div>
-                  <div className="col-span-3 sm:col-span-3 text-center">
+                  <div className="flex items-center justify-between gap-3 sm:block sm:col-span-3 sm:text-center">
+                    <span className="text-xs font-medium text-gray-500 uppercase sm:hidden">Estimasi Sistem</span>
                     {item.estimated_surplus !== null ? (
                       <span className="inline-flex items-center justify-center bg-gray-100 px-2.5 py-1 rounded-md text-gray-700 text-sm font-medium">
                         {item.estimated_surplus} porsi
@@ -224,14 +228,15 @@ export default function SurplusPage() {
                       <span className="text-gray-400 text-sm">-</span>
                     )}
                   </div>
-                  <div className="col-span-3 sm:col-span-3">
+                  <div className="flex items-center justify-between gap-3 sm:block sm:col-span-3">
+                    <span className="text-xs font-medium text-gray-500 uppercase sm:hidden">Fisik Aktual</span>
                     <input
                       type="number"
                       min="0"
                       value={item.actual_surplus}
                       onChange={(e) => handleSurplusChange(item.menu_id, e.target.value)}
                       placeholder="0"
-                      className="w-full text-center rounded-lg border-0 py-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm font-bold"
+                      className="w-28 sm:w-full text-center rounded-lg border-0 py-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm font-bold"
                     />
                   </div>
                 </div>
