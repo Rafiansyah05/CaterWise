@@ -75,9 +75,10 @@ export default function RestaurantSetupPage() {
     // Save Profile (Owner Details)
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ 
+      .update({
         full_name: ownerName,
-        phone_number: phoneNumber
+        phone_number: phoneNumber,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       })
       .eq('id', user.id);
 
