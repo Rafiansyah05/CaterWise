@@ -309,11 +309,11 @@ export default function HistorySetupPage() {
               <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Detail Terjual Per Menu</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {menus.map(menu => (
-                  <div key={menu.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
-                    <span className="text-sm font-medium text-gray-800">
+                  <div key={menu.id} className="flex items-center justify-between gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                    <span className="text-sm font-medium text-gray-800 min-w-0">
                       {menu.name} <span className="text-gray-500 font-normal text-xs">({menu.unit || 'Porsi'})</span>
                     </span>
-                    <div className="w-32">
+                    <div className="w-24 sm:w-32 shrink-0">
                       <FormattedNumberInput 
                         value={quantities[menu.id] || ''} 
                         onChange={(val) => handleQuantityChange(menu.id, val)} 

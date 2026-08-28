@@ -354,14 +354,14 @@ export default function SimulationPage() {
                   <div className="text-gray-500 text-sm">Belum ada data menu aktif.</div>
                 ) : (
                   menus.map(menu => (
-                    <div key={menu.id} className="flex items-center gap-4">
-                      <div className="flex-1">
+                    <div key={menu.id} className="flex items-center gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">{menu.name}</p>
                         <p className="text-xs text-gray-500">
                           Jual: Rp{menu.price.toLocaleString('id-ID')} | HPP: Rp{menu.hpp.toLocaleString('id-ID')}
                         </p>
                       </div>
-                      <div className="w-32">
+                      <div className="w-24 sm:w-32 shrink-0">
                         <input
                           type="number"
                           min="0"
