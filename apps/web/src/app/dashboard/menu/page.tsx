@@ -26,7 +26,6 @@ export default function MenuPage() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(true);
   
-  // States for confirm dialog
   const [dialogOpen, setDialogOpen] = useState(false);
   const [menuToDelete, setMenuToDelete] = useState<{ index: number, name: string } | null>(null);
 
@@ -51,7 +50,6 @@ export default function MenuPage() {
       if (restaurant) {
         setRestaurantId(restaurant.id);
         
-        // Fetch existing menus
         const { data: existingMenus } = await supabase
           .from('menus')
           .select('*')
@@ -96,7 +94,6 @@ export default function MenuPage() {
     const { index } = menuToDelete;
     const targetMenu = menus[index];
     
-    // Jika menu sudah ada di DB, hapus langsung
     if (targetMenu.id) {
       setLoading(true);
       const { error: deleteError } = await supabase
@@ -114,7 +111,6 @@ export default function MenuPage() {
       }
     }
     
-    // Hapus dari state lokal
     const newMenus = menus.filter((_, i) => i !== index);
     setMenus(newMenus);
     
@@ -193,7 +189,6 @@ export default function MenuPage() {
       setError('Gagal menyimpan menu: ' + errorMessage);
     } else {
       setSuccess('Perubahan menu berhasil disimpan!');
-      // Reload data to ensure IDs match database
       const { data: updatedMenus } = await supabase
         .from('menus')
         .select('*')

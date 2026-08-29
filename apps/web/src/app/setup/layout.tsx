@@ -16,12 +16,10 @@ export default function SetupLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="text-2xl font-bold text-blue-600">CaterWise</div>
           
-          {/* Progress Indicator */}
           <nav aria-label="Progress">
             <ol className="flex items-center space-x-2 sm:space-x-4">
               {steps.map((step, index) => {
@@ -48,7 +46,6 @@ export default function SetupLayout({
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col items-center p-6">
         <div className="w-full max-w-4xl">
           {children}

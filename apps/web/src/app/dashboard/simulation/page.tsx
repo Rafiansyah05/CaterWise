@@ -52,7 +52,7 @@ export default function SimulationPage() {
   const [inputs, setInputs] = useState<Record<string, number>>({});
   const [targetDate, setTargetDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 1); // Default to tomorrow
+    d.setDate(d.getDate() + 1);
     return d.toISOString().split('T')[0];
   });
   
@@ -178,7 +178,6 @@ export default function SimulationPage() {
     );
   }
 
-  // 3D Loading Animation Component (Pure CSS)
   const Loading3D = () => (
     <div className="flex flex-col items-center justify-center py-24 space-y-12">
       <style dangerouslySetInnerHTML={{__html: `
@@ -198,12 +197,10 @@ export default function SimulationPage() {
       <div className="relative w-40 h-40 [perspective:1000px]">
         <div className="w-full h-full relative [transform-style:preserve-3d]" style={{ animation: 'float3d 4s ease-in-out infinite' }}>
           
-          {/* Main Store Box */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center border-4 border-white/20">
             <span className="text-6xl drop-shadow-md">🏪</span>
           </div>
 
-          {/* Money / Transaction Elements */}
           <div className="absolute -top-8 -left-8 bg-green-100 p-3 rounded-full shadow-lg border border-green-300" style={{ animation: 'bounce-slow 3s ease-in-out infinite' }}>
             <span className="text-3xl">💵</span>
           </div>
@@ -211,7 +208,6 @@ export default function SimulationPage() {
             <span className="text-3xl">🪙</span>
           </div>
 
-          {/* Analysis Magnifying Glass */}
           <div className="absolute top-1/2 -right-12 bg-white/90 backdrop-blur p-4 rounded-full shadow-xl border border-gray-100 z-10" style={{ animation: 'pulse-glass 2s ease-in-out infinite' }}>
             <span className="text-4xl">🔍</span>
           </div>
@@ -229,7 +225,6 @@ export default function SimulationPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Simulasi Risiko & Keuntungan</h1>
@@ -248,7 +243,6 @@ export default function SimulationPage() {
       ) : result ? (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           
-          {/* Gemini AI Summary */}
           <div className="bg-gray-900 border border-gray-800 p-6 md:p-8 rounded-2xl relative overflow-hidden shadow-xl">
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
               <svg className="w-48 h-48 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9 9H2L7 14L5 21L12 17L19 21L17 14L22 9H15L12 2Z"/></svg>
@@ -266,7 +260,6 @@ export default function SimulationPage() {
             </div>
           </div>
 
-          {/* Financial Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
               <p className="text-sm font-medium text-gray-500 mb-1">Proyeksi Pendapatan</p>
@@ -286,7 +279,6 @@ export default function SimulationPage() {
             </div>
           </div>
 
-          {/* Detail Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
               <h2 className="font-semibold text-gray-800">Rincian per Menu</h2>
@@ -330,7 +322,6 @@ export default function SimulationPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Input Form */}
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
               <h2 className="font-semibold text-gray-800">Skenario Produksi</h2>
@@ -378,7 +369,6 @@ export default function SimulationPage() {
             </div>
           </div>
 
-          {/* Action / Helper Sidebar */}
           <div className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
               <h3 className="font-bold text-blue-900 mb-2">Mengapa Simulasi Penting?</h3>

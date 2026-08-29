@@ -13,7 +13,6 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
   const supabase = createClient();
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Tutup popup profile saat klik di luarnya
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -64,7 +63,6 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
 
   return (
     <>
-      {/* Mobile Topbar & Hamburger */}
       <div className="md:hidden flex items-center justify-between bg-white p-4 border-b border-gray-200 sticky top-0 z-30">
         <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-9 object-contain" />
         <button onClick={() => setIsMobileOpen(true)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-md">
@@ -72,7 +70,6 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
         </button>
       </div>
 
-      {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-gray-800/50 z-40 md:hidden" 
@@ -80,14 +77,12 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
         />
       )}
 
-      {/* Sidebar Container */}
       <aside 
         className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col md:relative
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           ${isCollapsed ? 'md:w-20' : 'md:w-64 w-64'}
         `}
       >
-        {/* Header */}
         <div className={`flex ${isCollapsed ? 'flex-col py-5 gap-4' : 'h-16 items-center justify-between px-4'} border-b border-gray-100 shrink-0`}>
           {!isCollapsed ? (
             <img src="/logo/logo_panjang_hitam.png" alt="CaterWise" className="h-10 object-contain max-w-[160px]" />
@@ -111,7 +106,6 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
           </button>
         </div>
 
-        {/* Menu Items */}
         <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => {
             const isActive = item.href === '/dashboard' 
@@ -138,7 +132,6 @@ export function Sidebar({ userName, userEmail }: { userName: string, userEmail: 
           })}
         </nav>
 
-        {/* Profile / Bottom Section */}
         <div className="border-t border-gray-100 relative shrink-0" ref={profileRef}>
           {isProfileOpen && (
             <div className={`absolute bottom-full mb-2 bg-white border border-gray-200 rounded-xl shadow-lg p-2 z-50

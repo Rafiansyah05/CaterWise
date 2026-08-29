@@ -13,15 +13,12 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient();
     
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // Expires in 10 minutes
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
-    // Invalidate previous OTPs for this email
     await supabase.from('otps').update({ verified: true }).eq('email', email);
 
-    // Insert new OTP
     const { error: insertError } = await supabase
       .from('otps')
       .insert({
@@ -35,7 +32,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create OTP' }, { status: 500 });
     }
 
-    // Send email via Resend
     const { data: resendData, error: resendError } = await resend.emails.send({
       from: 'CaterWise <noreply@adatelur.web.id>',
       to: [email],

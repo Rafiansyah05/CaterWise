@@ -36,7 +36,7 @@ export default function PrediksiPage() {
   const [loadingStep, setLoadingStep] = useState(0);
   useEffect(() => {
     let isMounted = true;
-    let done = false; // Pastikan hanya 1 request yang benar-benar selesai
+    let done = false;
 
     async function runPrediction() {
       try {
@@ -98,7 +98,6 @@ export default function PrediksiPage() {
         const data = await res.json();
         if (!isMounted || done) return;
 
-        // Tandai selesai agar call paralel kedua (Strict Mode) tidak menimpa
         done = true;
 
         setForecasts(data.forecasts);
@@ -196,7 +195,6 @@ export default function PrediksiPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
-      {/* Breadcrumb & Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4">
         <div className="flex items-start sm:items-center gap-3 sm:gap-4">
           <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">

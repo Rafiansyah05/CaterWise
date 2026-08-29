@@ -15,18 +15,15 @@ export default function HistorySetupPage() {
   const [hasData, setHasData] = useState(false);
   const [savedDates, setSavedDates] = useState<string[]>([]);
 
-  // Form Manual State
   const [manualDate, setManualDate] = useState('');
   const [quantities, setQuantities] = useState<Record<string, string>>({});
 
-  // Upload State
   const [csvData, setCsvData] = useState<any[]>([]);
   const [unmatchedMenus, setUnmatchedMenus] = useState<string[]>([]);
 
   const router = useRouter();
   const supabase = createClient();
 
-  // Load Initial Data
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -47,7 +44,6 @@ export default function HistorySetupPage() {
 
         if (menuData) setMenus(menuData);
 
-        // Check if they already have data and get distinct dates
         const { data: sales } = await supabase
           .from('daily_sales')
           .select('sales_date')
@@ -66,7 +62,6 @@ export default function HistorySetupPage() {
     loadData();
   }, [supabase, router]);
 
-  // Auto-load quantities when a date is selected
   useEffect(() => {
     async function loadQuantitiesForDate() {
       if (!manualDate || menus.length === 0) {
@@ -97,7 +92,6 @@ export default function HistorySetupPage() {
     setQuantities(prev => ({ ...prev, [menuId]: val }));
   };
 
-  // Handle Manual Save (Upsert)
   const handleManualSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -137,12 +131,10 @@ export default function HistorySetupPage() {
         const newDates = [...savedDates, manualDate].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
         setSavedDates(newDates);
       }
-      // Kita biarkan form tidak dikosongkan agar pengguna tahu datanya tersimpan
     }
     setLoading(false);
   };
 
-  // Handle CSV File Selection
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -159,25 +151,20 @@ export default function HistorySetupPage() {
       let formatError = false;
 
       lines.forEach((line, index) => {
-        // Handle comma separation and ignore empty columns
         const cols = line.split(',').map(c => c.trim());
         
-        // Skip header if first line has non-numeric qty
         if (index === 0 && isNaN(parseInt(cols[2]))) return;
         
-        // Strict Validation: Must have exactly 3 columns and they cannot be empty
         if (cols.length < 3 || !cols[0] || !cols[1] || !cols[2]) {
           formatError = true;
           return;
         }
         
-        // Validate Date (basic check if it looks like YYYY-MM-DD or valid date string)
         if (isNaN(Date.parse(cols[0]))) {
           formatError = true;
           return;
         }
 
-        // Validate Quantity
         if (isNaN(parseInt(cols[2]))) {
           formatError = true;
           return;
@@ -192,7 +179,6 @@ export default function HistorySetupPage() {
         return;
       }
 
-      // Normalisasi dan Mapping Nama Menu (Fuzzy Match)
       const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
       const unmatched = new Set<string>();
       const mappedData: any[] = [];
@@ -200,14 +186,11 @@ export default function HistorySetupPage() {
       parsed.forEach(row => {
         const normCsv = normalize(row.menuName);
         
-        // 1. Coba cari kecocokan persis (setelah dinormalisasi dari spasi/huruf besar)
         let matchedMenu = menus.find(m => normalize(m.name) === normCsv);
         
-        // 2. Jika tidak ketemu, coba cari yang mirip (mengandung kata yang sama)
         if (!matchedMenu) {
           matchedMenu = menus.find(m => {
             const normDb = normalize(m.name);
-            // Hindari pencocokan yang terlalu pendek (misal cuma 1 huruf yang sama)
             if (normDb.length > 3 && normCsv.length > 3) {
                return normCsv.includes(normDb) || normDb.includes(normCsv);
             }
@@ -256,7 +239,6 @@ export default function HistorySetupPage() {
       setCsvData([]);
       setHasData(true);
 
-      // Update saved dates list
       const importedDates = Array.from(new Set(payload.map(p => p.sales_date)));
       const newDates = Array.from(new Set([...savedDates, ...importedDates])).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
       setSavedDates(newDates);
@@ -334,7 +316,6 @@ export default function HistorySetupPage() {
             </button>
           </form>
 
-          {/* Daftar Tanggal Tersimpan */}
           {savedDates.length > 0 && (
             <div className="pt-6 border-t border-gray-100">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Data yang Sudah Tersimpan (Klik untuk Edit)</h3>
@@ -365,7 +346,6 @@ export default function HistorySetupPage() {
             <p className="mt-2 text-xs text-gray-500">Format CSV: Tanggal (YYYY-MM-DD), Nama Menu, Jumlah Terjual</p>
           </div>
 
-          {/* Contoh Format CSV */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h4 className="text-sm font-semibold text-gray-800 mb-2">Contoh Format CSV yang Benar:</h4>
             <div className="overflow-x-auto">

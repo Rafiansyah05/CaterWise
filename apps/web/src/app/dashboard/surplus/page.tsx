@@ -34,7 +34,6 @@ export default function SurplusPage() {
           return;
         }
 
-        // Fetch User Profile & Restaurant info
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -58,7 +57,6 @@ export default function SurplusPage() {
           return;
         }
 
-        // Fetch active menus
         const { data: menus } = await supabase
           .from('menus')
           .select('id, name')
@@ -67,20 +65,17 @@ export default function SurplusPage() {
 
         if (!menus) return;
 
-        // Get today's date in YYYY-MM-DD
         const targetDate = new Date();
         const year = targetDate.getFullYear();
         const month = String(targetDate.getMonth() + 1).padStart(2, '0');
         const day = String(targetDate.getDate()).padStart(2, '0');
         const dateStr = `${year}-${month}-${day}`;
 
-        // Fetch today's production
         const { data: productions } = await supabase
           .from('daily_production')
           .select('menu_id, quantity')
           .eq('production_date', dateStr);
 
-        // Fetch today's sales
         const { data: sales } = await supabase
           .from('daily_sales')
           .select('menu_id, quantity_sold')
@@ -202,14 +197,12 @@ export default function SurplusPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Header */}
               <div className="hidden sm:grid sm:grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase pb-2 border-b">
                 <div className="sm:col-span-6">Menu</div>
                 <div className="sm:col-span-3 text-center">Estimasi Sistem</div>
                 <div className="sm:col-span-3 text-center">Fisik Aktual</div>
               </div>
 
-              {/* List */}
               {items.map((item) => (
                 <div
                   key={item.menu_id}

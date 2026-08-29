@@ -21,7 +21,6 @@ export default function SignUpPage() {
     setLoading(true);
     setError('');
 
-    // Validasi kekuatan password
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
       setError('Password minimal 8 karakter, harus mengandung huruf besar, huruf kecil, angka, dan karakter spesial.');
@@ -37,7 +36,6 @@ export default function SignUpPage() {
 
     const supabase = createClient();
     
-    // Create user in Supabase
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -52,7 +50,6 @@ export default function SignUpPage() {
       return;
     }
 
-    // Trigger custom OTP
     const res = await fetch('/api/auth/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
