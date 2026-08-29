@@ -63,6 +63,21 @@ Proses pengembangan CaterWise dilakukan dengan metodologi Agile untuk memastikan
 - ✅ **Financial Calculation:** *Revenue/cost/profit calculation* berjalan. Berdasarkan data HPP (Biaya Produksi) dan Harga Jual, sistem menampilkan angka Proyeksi Pendapatan, Biaya, dan Untung-Rugi secara *real-time*.
 - ✅ **Generative AI Analysis:** Gemini dapat menjelaskan hasil simulasi. Terintegrasi dengan hitungan metrik finansial dan data cuaca, Gemini memberikan *Executive Summary* untuk menasihati pemilik restoran mengenai efisiensi rencana produksi tersebut (sudah optimal atau berisiko kerugian).
 
+### Sprint 6: Containerization & Continuous Deployment
+**Fokus:** Membawa aplikasi keluar dari lingkungan lokal menjadi layanan yang berjalan permanen dan dapat diperbarui secara berulang.
+- ✅ **Containerization:** *Dockerfile* terpisah untuk aplikasi web (Next.js *standalone output*) dan *service* AI (Python), diorkestrasi melalui satu berkas `docker-compose.yml` sehingga kedua *service* dapat dijalankan bersamaan dengan satu perintah.
+- ✅ **Build Pipeline (CI):** *GitHub Actions* dikonfigurasi untuk membangun kedua *image* secara otomatis setiap kali terjadi perubahan pada *branch* utama, lalu mendorong hasilnya ke Docker Hub sebagai *registry*.
+- ✅ **Secret Management:** Kredensial sensitif dipisahkan menurut waktu pakainya. Variabel `NEXT_PUBLIC_*` disuntikkan sebagai *build args* dari *GitHub Secrets* saat kompilasi, sedangkan kunci rahasia sisi server dibaca dari berkas `.env` ketika *container* dijalankan.
+- ✅ **Deployment Script:** Skrip `deploy.sh` menyatukan proses penarikan kode terbaru, pengambilan *image* dari *registry*, dan pemuatan ulang *container* menjadi satu langkah tunggal di server produksi.
+- ✅ **Rendering Strategy:** Seluruh halaman yang bergantung pada sesi Supabase ditandai *dynamic rendering* untuk mencegah kegagalan *prerender* pada tahap *build*.
+
+### Sprint 7: Automated Reminder & Interface Refinement
+**Fokus:** Menjaga kedisiplinan pencatatan harian melalui pengingat otomatis, serta merapikan antarmuka agar layak ditampilkan kepada pengguna akhir.
+- ✅ **WhatsApp Reminder Engine:** Pengingat otomatis pukul 21.00 dikirim melalui *gateway* Fonnte kepada pemilik yang belum merekap penjualan hari itu. Pesan memuat tautan langsung menuju halaman input penjualan, dan *endpoint* pengirimnya dikunci dengan *bearer token* agar tidak dapat dipicu pihak luar.
+- ✅ **Timezone-aware Scheduling:** Zona waktu setiap pemilik direkam otomatis dari peramban saat pengaturan profil. *Scheduler* `pg_cron` berjalan setiap jam, lalu menyaring pengguna yang saat itu tepat berada di pukul 21.00 menurut zona waktunya masing-masing, sehingga satu jadwal melayani seluruh wilayah.
+- ✅ **Delivery Guard:** Tabel `reminder_logs` memastikan setiap restoran hanya menerima satu pengingat per hari. Hari tutup restoran dilewati, dan catatan pengiriman dibatalkan kembali apabila pengiriman gagal agar pengingat tidak hilang diam-diam.
+- ✅ **Landing Page:** Halaman depan dirancang ulang dengan *navbar* tetap, *hero* berisi grafik permintaan yang menggambar dirinya sendiri dari riwayat menuju prediksi, bagian fitur, FAQ, serta animasi masuk yang menghormati preferensi *reduced motion*.
+
 ## Cara Menjalankan Project
 
 Aplikasi ini berjalan dengan dua *service* terpisah (Frontend Next.js dan Backend Python) serta menggunakan database lokal Supabase.
@@ -90,8 +105,21 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbG...
 # Gemini API Key (Dari Google AI Studio)
 GEMINI_API_KEY=AIzaSy...
 
+# Pengiriman email OTP (Dari dashboard Resend)
+RESEND_API_KEY=re_...
+
 # Backend API URL (Ubah ke https://api.caterwise.web.id saat production)
+# Wajib diawali http:// atau https://
 NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Alamat publik aplikasi web, dipakai sebagai tautan di dalam pesan pengingat
+SITE_URL=https://caterwise.web.id
+
+# WhatsApp gateway untuk pengingat harian (Dari dashboard Fonnte)
+FONNTE_TOKEN=...
+
+# Kunci rahasia bebas, harus sama dengan yang ditulis pada jadwal pg_cron
+REMINDER_SECRET=...
 ```
 
 ### 3. Install Dependensi Node (Frontend)
