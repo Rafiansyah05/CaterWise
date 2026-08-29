@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { FormattedNumberInput } from '@/components/ui/FormattedNumberInput';
 import { Spinner } from '@/components/ui/Spinner';
+import { SuccessDialog } from '@/components/ui/SuccessDialog';
 
 interface Menu {
   id: string;
@@ -32,7 +33,7 @@ export default function SalesPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [hasTomorrowStock, setHasTomorrowStock] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [tersimpanTerbuka, setTersimpanTerbuka] = useState(false);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -132,7 +133,6 @@ export default function SalesPage() {
 
     setLoading(true);
     setError('');
-    setSuccess('');
 
     try {
       const { data: existingSales, error: salesError } = await supabase
@@ -187,7 +187,6 @@ export default function SalesPage() {
     e.preventDefault();
     setSaving(true);
     setError('');
-    setSuccess('');
 
     try {
       const salesPayload = menus.map(menu => ({
@@ -210,12 +209,11 @@ export default function SalesPage() {
         .upsert(prodPayload, { onConflict: 'menu_id, production_date' });
       if (prodErr) throw prodErr;
 
-      setSuccess('Data penjualan dan stok berhasil disimpan!');
       if (restaurantId) {
         await loadHistory(restaurantId);
       }
 
-      setTimeout(() => setSuccess(''), 4000);
+      setTersimpanTerbuka(true);
     } catch (err: any) {
       setError(err.message || 'Gagal menyimpan data');
     } finally {
@@ -268,7 +266,7 @@ export default function SalesPage() {
                     }}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="block w-full sm:w-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    className="block h-11 w-full cursor-pointer rounded-xl border-0 bg-white pl-3.5 pr-3 text-sm text-gray-900 ring-1 ring-inset ring-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:w-48"
                     max={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                   />
                 </div>
@@ -283,7 +281,6 @@ export default function SalesPage() {
 
             <form onSubmit={handleSave} className="p-5 sm:p-6 flex flex-col gap-6">
               {error && <div className="text-red-700 text-sm bg-red-50 p-3 rounded-lg border border-red-200 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 0011v 4a1 1 0 102 0v4-1a1 1 0 0011z" clipRule="evenodd" /></svg>{error}</div>}
-              {success && <div className="text-green-700 text-sm bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{success}</div>}
 
               {loading ? (
                 <div className="flex items-center justify-center py-20">
@@ -359,7 +356,7 @@ export default function SalesPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-50 flex items-center gap-2"
+                    className="inline-flex h-12 items-center justify-center rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-50 flex items-center gap-2"
                   >
                     {saving && (
                       <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -416,6 +413,14 @@ export default function SalesPage() {
           </div>
         </div>
       </div>
+
+      <SuccessDialog
+        isOpen={tersimpanTerbuka}
+        title="Data tersimpan"
+        message={`Stok dan penjualan untuk ${formatDate(selectedDate)} sudah tercatat.`}
+        actionText="Selesai"
+        onAction={() => setTersimpanTerbuka(false)}
+      />
     </div>
   );
 }
