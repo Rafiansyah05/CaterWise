@@ -35,7 +35,6 @@ export default function MenuSetupPage() {
       if (restaurant) {
         setRestaurantId(restaurant.id);
         
-        // Load existing menus if user goes back
         const { data: existingMenus } = await supabase
           .from('menus')
           .select('*')
@@ -82,7 +81,6 @@ export default function MenuSetupPage() {
     setLoading(true);
     setError('');
 
-    // Filter baris kosong
     const validMenus = menus.filter(m => m.name.trim() !== '' && m.selling_price !== '' && m.hpp !== '');
     
     if (validMenus.length === 0) {
@@ -97,7 +95,6 @@ export default function MenuSetupPage() {
       return;
     }
 
-    // Eksekusi penghapusan menu yang di-remove oleh user
     if (deletedMenuIds.length > 0) {
       await supabase.from('menus').delete().in('id', deletedMenuIds);
     }

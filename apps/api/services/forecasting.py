@@ -18,7 +18,6 @@ id_holidays = holidays.ID()
 _local_weather_cache: Dict[str, float] = {}
 
 def prefetch_weather(start_date: pd.Timestamp, end_date: pd.Timestamp):
-    """Tarik data cuaca sekaligus (bulk) untuk seluruh rentang tanggal."""
     date_range = pd.date_range(start=start_date, end=end_date)
     missing_dates = [d for d in date_range if d.strftime('%Y-%m-%d') not in _local_weather_cache]
     
@@ -151,11 +150,6 @@ def prepare_xgboost_data(df: pd.DataFrame, window: int = 7) -> Tuple[pd.DataFram
     return pd.DataFrame(X, columns=pd.Index(feature_names)), pd.Series(y)
 
 def evaluate_models(df: pd.DataFrame, target_ts: pd.Timestamp) -> Dict[str, Any]:
-    """
-    Evaluates WMA vs XGBoost.
-    - Walk-forward validation 5 hari terakhir untuk KEDUA model (MAE/MAPE akurat)
-    - XGBoost ditraining SEKALI pada full data untuk prediksi final (efisien)
-    """
     if len(df) > 0:
         min_date = df['sales_date'].min()
         max_date = max(df['sales_date'].max(), target_ts)

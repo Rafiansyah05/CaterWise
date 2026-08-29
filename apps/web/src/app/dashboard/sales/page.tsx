@@ -117,7 +117,7 @@ export default function SalesPage() {
 
       const summaryArray = Object.values(summaryMap)
         .sort((a, c) => new Date(c.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 14); // Show last 14 days
+        .slice(0, 14);
 
       setHistory(summaryArray);
     }
@@ -134,7 +134,6 @@ export default function SalesPage() {
     setSuccess('');
 
     try {
-      // Fetch Sales
       const { data: existingSales, error: salesError } = await supabase
         .from('daily_sales')
         .select('menu_id, quantity_sold')
@@ -154,7 +153,6 @@ export default function SalesPage() {
         setSalesData(newSalesData);
       }
 
-      // Fetch Production (Stok)
       const { data: existingProduction, error: prodError } = await supabase
         .from('daily_production')
         .select('menu_id, quantity')
@@ -191,7 +189,6 @@ export default function SalesPage() {
     setSuccess('');
 
     try {
-      // Save Sales
       const salesPayload = menus.map(menu => ({
         menu_id: menu.id,
         sales_date: selectedDate,
@@ -202,7 +199,6 @@ export default function SalesPage() {
         .upsert(salesPayload, { onConflict: 'menu_id, sales_date' });
       if (salesErr) throw salesErr;
 
-      // Save Production (Stok)
       const prodPayload = menus.map(menu => ({
         menu_id: menu.id,
         production_date: selectedDate,
@@ -244,7 +240,6 @@ export default function SalesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* KOLOM KIRI */}
         <div className="lg:col-span-3">
           <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
             <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -358,7 +353,6 @@ export default function SalesPage() {
                 </div>
               )}
               
-              // Save button
               {!loading && menus.length > 0 && (
                 <div className="flex justify-end pt-4">
                   <button
@@ -380,7 +374,6 @@ export default function SalesPage() {
           </div>
         </div>
 
-        {/* KOLOM KANAN: WIDGET RIWAYAT */}
         <div className="lg:col-span-1">
           <div className="bg-gray-50/50 p-5 rounded-xl border border-gray-200/60 sticky top-6">
             <div className="flex items-center gap-2 mb-4">

@@ -34,6 +34,20 @@
   animation: rise-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+.float {
+  animation: float-soft 6s ease-in-out 1.4s infinite;
+}
+
 @keyframes draw-line {
   to {
     stroke-dashoffset: 0;
@@ -130,6 +144,7 @@ html {
   }
 
   .rise,
+  .float,
   .pulse,
   .pop,
   .draw,

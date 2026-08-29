@@ -78,7 +78,6 @@ export default function DashboardPage() {
         if (!rest) return router.push('/dashboard/profile/setup');
         setRestaurantId(rest.id);
 
-        // Load History
         const { data: historyData } = await supabase.from('forecast_history').select('*').eq('restaurant_id', rest.id).order('target_date', { ascending: false }).limit(10);
         if (historyData) setForecastHistory(historyData);
 
@@ -88,7 +87,6 @@ export default function DashboardPage() {
           .eq('restaurant_id', rest.id)
           .eq('is_active', true);
 
-        // Device local dates
         const todayStr = new Date().toLocaleDateString('en-CA');
         const yesterdayDate = new Date();
         yesterdayDate.setDate(yesterdayDate.getDate() - 1);

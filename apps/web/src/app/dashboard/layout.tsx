@@ -16,7 +16,6 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  // Cek apakah user sudah terverifikasi via OTP kustom
   const adminSupabase = createAdminClient();
   const { data: otpData } = await adminSupabase
     .from('otps')
@@ -26,11 +25,9 @@ export default async function DashboardLayout({
     .single();
 
   if (!otpData) {
-    // Jika tidak ada OTP yang diverifikasi, lempar kembali ke halaman OTP
     redirect(`/verify-otp?email=${encodeURIComponent(user.email || '')}`);
   }
 
-  // Cek kelengkapan onboarding: Restoran dan Menu
   const { data: restaurant } = await supabase
     .from('restaurants')
     .select('id')
@@ -51,7 +48,6 @@ export default async function DashboardLayout({
     redirect('/setup/menu');
   }
 
-  // Fetch Profile for Name
   let userName = user.user_metadata?.name || 'User';
   const { data: profile } = await supabase
     .from('profiles')
@@ -67,7 +63,6 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <Sidebar userName={userName} userEmail={user.email || ''} />
 
-      {/* Main Content */}
       <main className="flex-1 md:h-screen md:overflow-y-auto">
         <div className="p-4 md:p-8">
           {children}

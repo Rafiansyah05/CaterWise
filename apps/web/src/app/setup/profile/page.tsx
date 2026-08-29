@@ -5,11 +5,9 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function RestaurantSetupPage() {
-  // Owner state
   const [ownerName, setOwnerName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  // Restaurant state
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [operatingDays, setOperatingDays] = useState<string[]>([]);
@@ -27,7 +25,6 @@ export default function RestaurantSetupPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Load Profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -41,7 +38,6 @@ export default function RestaurantSetupPage() {
         setOwnerName(user.user_metadata?.name || '');
       }
 
-      // Load Restaurant
       const { data: restaurant } = await supabase
         .from('restaurants')
         .select('*')
@@ -72,7 +68,6 @@ export default function RestaurantSetupPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Save Profile (Owner Details)
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
@@ -88,7 +83,6 @@ export default function RestaurantSetupPage() {
       return;
     }
 
-    // Check if restaurant exists
     const { data: existing } = await supabase
       .from('restaurants')
       .select('id')
@@ -130,7 +124,6 @@ export default function RestaurantSetupPage() {
       
       <form onSubmit={handleSave} className="space-y-8">
         
-        {/* Seksi Data Diri */}
         <section>
           <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Data Diri Pemilik</h3>
           <div className="space-y-4">
@@ -145,7 +138,6 @@ export default function RestaurantSetupPage() {
           </div>
         </section>
 
-        {/* Seksi Data Restoran */}
         <section>
           <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Data Restoran Prasmanan</h3>
           <div className="space-y-4">

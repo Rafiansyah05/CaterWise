@@ -91,7 +91,7 @@ export default async function Home() {
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
             <div>
               <h1
-                className="rise text-[2.6rem] font-extrabold leading-[1.06] tracking-[-0.03em] sm:text-[3.6rem] sm:leading-[1.03]"
+                className="rise text-[2.6rem] font-bold leading-[1.06] tracking-[-0.03em] sm:text-[3.6rem] sm:leading-[1.03]"
                 style={{ animationDelay: '60ms' }}
               >
                 Berapa porsi
@@ -130,7 +130,7 @@ export default async function Home() {
             </div>
 
             <div className="rise mx-auto w-full max-w-lg lg:max-w-none" style={{ animationDelay: '460ms' }}>
-              <div className="rounded-2xl border border-hairline bg-white p-5 shadow-[0_2px_4px_rgba(11,16,32,0.03),0_18px_50px_-18px_rgba(11,16,32,0.16)] sm:p-7">
+              <div className="float rounded-2xl border border-hairline bg-white p-5 shadow-[0_2px_4px_rgba(11,16,32,0.03),0_18px_50px_-18px_rgba(11,16,32,0.16)] sm:p-7">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="text-sm font-bold">Permintaan Ayam Goreng</span>
                   <span className="text-xs text-muted">Contoh</span>
