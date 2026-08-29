@@ -49,9 +49,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = process.env.SITE_URL;
   if (!siteUrl) {
-    return NextResponse.json({ error: 'NEXT_PUBLIC_SITE_URL belum dikonfigurasi' }, { status: 500 });
+    return NextResponse.json({ error: 'SITE_URL belum dikonfigurasi' }, { status: 500 });
   }
 
   const salesUrl = `${siteUrl.replace(/\/+$/, '')}/dashboard/sales`;

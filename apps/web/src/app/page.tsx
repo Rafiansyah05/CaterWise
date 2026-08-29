@@ -290,7 +290,7 @@ export default async function Home() {
       <footer className="border-t border-hairline">
         <div className="mx-auto flex max-w-5xl flex-col gap-2 px-5 py-8 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p>CaterWise &copy; 2026</p>
-          <p>ANFORCOM 2026 Data Science &amp; Data Challenge</p>
+          <p>Mas AsiX</p>
         </div>
       </footer>
     </div>

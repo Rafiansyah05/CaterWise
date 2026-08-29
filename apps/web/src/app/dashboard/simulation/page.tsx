@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/utils/api';
 import Link from 'next/link';
+import { PageLoader } from '@/components/ui/Spinner';
 
 interface MenuData {
   id: string;
@@ -171,11 +172,7 @@ export default function SimulationPage() {
   };
 
   if (loadingInitial) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const Loading3D = () => (
