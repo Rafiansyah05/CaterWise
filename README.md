@@ -78,6 +78,13 @@ Proses pengembangan CaterWise dilakukan dengan metodologi Agile untuk memastikan
 - ✅ **Delivery Guard:** Tabel `reminder_logs` memastikan setiap restoran hanya menerima satu pengingat per hari. Hari tutup restoran dilewati, dan catatan pengiriman dibatalkan kembali apabila pengiriman gagal agar pengingat tidak hilang diam-diam.
 - ✅ **Landing Page:** Halaman depan dirancang ulang dengan *navbar* tetap, *hero* berisi grafik permintaan yang menggambar dirinya sendiri dari riwayat menuju prediksi, bagian fitur, FAQ, serta animasi masuk yang menghormati preferensi *reduced motion*.
 
+### Sprint 8: Design System & Interface Consistency
+**Fokus:** Menyatukan bahasa visual seluruh aplikasi agar terasa sebagai satu produk utuh, bukan kumpulan halaman yang dikerjakan terpisah.
+- ✅ **Onboarding Redesign:** Ketiga langkah pengaturan awal dirancang ulang memakai logo asli, *navbar* tetap, dan penanda langkah berupa lingkaran bernomor yang berubah menjadi centang setelah dilewati. Isi tiap halaman dipecah menjadi kartu dengan tinggi kolom isian yang seragam.
+- ✅ **Dialog System:** Komponen `SuccessDialog` dan `ConfirmDialog` disatukan dalam satu bahasa visual, lengkap dengan animasi masuk bertahap dan penguncian gulir halaman. Notifikasi keberhasilan yang sebelumnya berupa spanduk sementara diubah menjadi dialog sehingga tidak terlewat pengguna.
+- ✅ **Surplus Page:** Halaman distribusi surplus disusun ulang agar barisnya rapat dan seimbang, dilengkapi penjumlah porsi otomatis serta pencegahan pengiriman ketika total masih nol.
+- ✅ **Shared Loading State:** Indikator memuat yang sebelumnya memakai tiga gaya berbeda disatukan menjadi satu komponen bersama pada seluruh halaman dashboard.
+
 ## Cara Menjalankan Project
 
 Aplikasi ini berjalan dengan dua *service* terpisah (Frontend Next.js dan Backend Python) serta menggunakan database lokal Supabase.
