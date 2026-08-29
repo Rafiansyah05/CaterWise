@@ -252,15 +252,25 @@ export default function MenuPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block sm:hidden text-xs text-gray-500 mb-1">Satuan</label>
-                  <select
-                    value={menu.unit}
-                    onChange={(e) => handleMenuChange(index, 'unit', e.target.value)}
-                    className="block w-full rounded-lg border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                  >
-                    {unitOptions.map(opt => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={menu.unit}
+                      onChange={(e) => handleMenuChange(index, 'unit', e.target.value)}
+                      className="block w-full cursor-pointer appearance-none rounded-lg border-0 py-2 pl-3 pr-9 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
+                    >
+                      {unitOptions.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                      aria-hidden="true"
+                    >
+                      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
                 </div>
                 <div className="sm:col-span-3">
                   <label className="block sm:hidden text-xs text-gray-500 mb-1">Harga Jual (Rp)</label>

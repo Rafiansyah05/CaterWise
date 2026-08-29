@@ -260,6 +260,12 @@ export default function SalesPage() {
                   <label className="text-sm font-medium text-gray-700">Tanggal:</label>
                   <input
                     type="date"
+                    onClick={(e) => {
+                      const el = e.currentTarget;
+                      if (typeof el.showPicker === 'function') {
+                        try { el.showPicker(); } catch {}
+                      }
+                    }}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="block w-full sm:w-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
