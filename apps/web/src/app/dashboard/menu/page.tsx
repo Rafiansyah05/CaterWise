@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client';
 import { FormattedNumberInput } from '@/components/ui/FormattedNumberInput';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PageLoader } from '@/components/ui/Spinner';
+import { SuccessDialog } from '@/components/ui/SuccessDialog';
 
 interface Menu {
   id?: string;
@@ -23,6 +24,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [tersimpanTerbuka, setTersimpanTerbuka] = useState(false);
   const [menus, setMenus] = useState<Menu[]>([{ name: '', unit: 'Porsi', selling_price: '', hpp: '' }]);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -189,13 +191,12 @@ export default function MenuPage() {
     if (hasError) {
       setError('Gagal menyimpan menu: ' + errorMessage);
     } else {
-      setSuccess('Perubahan menu berhasil disimpan!');
       const { data: updatedMenus } = await supabase
         .from('menus')
         .select('*')
         .eq('restaurant_id', restaurantId)
         .order('created_at', { ascending: true });
-        
+
       if (updatedMenus) {
         setMenus(updatedMenus.map(m => ({
           id: m.id,
@@ -206,7 +207,7 @@ export default function MenuPage() {
         })));
       }
 
-      setTimeout(() => setSuccess(''), 3000);
+      setTersimpanTerbuka(true);
     }
     setLoading(false);
   };
@@ -313,7 +314,7 @@ export default function MenuPage() {
           </div>
 
           <div className="flex justify-end pt-6 border-t border-gray-100">
-            <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-50 flex items-center gap-2">
+            <button type="submit" disabled={loading} className="inline-flex h-12 items-center justify-center rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-50 flex items-center gap-2">
               {loading && (
                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -329,12 +330,20 @@ export default function MenuPage() {
       <ConfirmDialog 
         isOpen={dialogOpen}
         title="Konfirmasi Hapus"
-        message={`Apakah Anda yakin ingin menghapus menu "${menuToDelete?.name || ''}"? Seluruh data riwayat penjualan untuk menu ini juga akan terhapus secara permanen setelah Anda menyimpan perubahan.`}
+        message={`Menu "${menuToDelete?.name || ''}" beserta seluruh riwayat penjualannya akan dihapus permanen dan tidak dapat dikembalikan.`}
         confirmText="Ya, Hapus"
         cancelText="Batal"
         onConfirm={confirmRemoveMenu}
         onCancel={() => setDialogOpen(false)}
         isDanger={true}
+      />
+
+      <SuccessDialog
+        isOpen={tersimpanTerbuka}
+        title="Menu tersimpan"
+        message={`${menus.length} menu sudah diperbarui.`}
+        actionText="Selesai"
+        onAction={() => setTersimpanTerbuka(false)}
       />
     </div>
   );

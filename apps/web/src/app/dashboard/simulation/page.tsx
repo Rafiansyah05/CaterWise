@@ -338,7 +338,7 @@ export default function SimulationPage() {
                   }}
                   value={targetDate}
                   onChange={(e) => setTargetDate(e.target.value)}
-                  className="block w-full max-w-xs rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
+                  className="block h-11 w-full max-w-xs cursor-pointer rounded-xl border-0 bg-white pl-3.5 pr-3 text-sm text-gray-900 ring-1 ring-inset ring-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600"
                 />
               </div>
 

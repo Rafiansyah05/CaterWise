@@ -1,3 +1,4 @@
+'use client';
 import { useEffect } from 'react';
 
 interface ConfirmDialogProps {
@@ -24,62 +25,69 @@ export function ConfirmDialog({
   isDanger = false,
 }: ConfirmDialogProps) {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
+    if (!isOpen) return;
+    const sebelumnya = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
     };
-  }, [isOpen]);
+    document.addEventListener('keydown', onKey);
+
+    return () => {
+      document.body.style.overflow = sebelumnya;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
-      <div 
-        className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" 
-        onClick={onCancel}
-      />
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-all animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${isDanger ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-            {isDanger ? (
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            ) : (
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-              </svg>
-            )}
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-            <div className="text-sm text-gray-500 mt-2 leading-relaxed">{message}</div>
-          </div>
-        </div>
-            <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 sm:gap-0">
-              {!isInfo && (
-                <button
-                  type="button"
-                  className="inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto transition-all"
-                  onClick={onCancel}
-                >
-                  {cancelText}
-                </button>
-              )}
-              <button
-                type="button"
-                className={`inline-flex w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm sm:w-auto transition-all ${
-                  isInfo ? 'bg-blue-600 hover:bg-blue-500' : (isDanger ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500')
-                }`}
-                onClick={onConfirm}
-              >
-                {isInfo ? 'Tutup' : confirmText}
-              </button>
-            </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div className="backdrop-in fixed inset-0 bg-[#0b1020]/40 backdrop-blur-sm" onClick={onCancel} />
+
+      <div className="dialog-in relative w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-[0_8px_16px_-8px_rgba(11,16,32,0.2),0_24px_60px_-20px_rgba(11,16,32,0.35)]">
+        <span
+          className={`check-in mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
+            isDanger ? 'bg-red-600' : 'bg-blue-600'
+          }`}
+        >
+          {isDanger ? (
+            <svg viewBox="0 0 24 24" fill="none" className="h-9 w-9 text-white" aria-hidden="true">
+              <path d="M12 5.5v9" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+              <path d="M12 19h.01" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" className="h-9 w-9 text-white" aria-hidden="true">
+              <path d="M12 18.5v-9" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+              <path d="M12 5h.01" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+            </svg>
+          )}
+        </span>
+
+        <h2 className="mt-6 text-lg font-bold text-gray-900">{title}</h2>
+        <div className="mt-2 text-sm leading-relaxed text-gray-500">{message}</div>
+
+        <button
+          type="button"
+          autoFocus
+          onClick={onConfirm}
+          className={`mt-7 inline-flex h-12 w-full items-center justify-center rounded-xl text-sm font-bold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 ${
+            isDanger && !isInfo ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {isInfo ? 'Tutup' : confirmText}
+        </button>
+
+        {!isInfo && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-xl text-sm font-bold text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            {cancelText}
+          </button>
+        )}
       </div>
     </div>
   );
