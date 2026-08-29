@@ -330,6 +330,12 @@ export default function SimulationPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tanggal Simulasi</label>
                 <input
                   type="date"
+                  onClick={(e) => {
+                    const el = e.currentTarget;
+                    if (typeof el.showPicker === 'function') {
+                      try { el.showPicker(); } catch {}
+                    }
+                  }}
                   value={targetDate}
                   onChange={(e) => setTargetDate(e.target.value)}
                   className="block w-full max-w-xs rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
